@@ -24,7 +24,7 @@ interface SectionData {
 const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ card }) => {
   const [isLayoutEditor, setIsLayoutEditor] = useState(false);
   
-  // Define default section order
+  // Define default section order with updated layout
   const defaultSections: SectionData[] = useMemo(() => [
     {
       id: 'what-it-does',
@@ -59,6 +59,18 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       borderColor: 'border-yellow-200',
       column: 'left' as const
     }] : []),
+    ...(card.promptTemplate ? [{
+      id: 'prompt-template',
+      title: 'Prompt Template:',
+      content: (
+        <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono bg-white p-2 rounded border">
+          {card.promptTemplate}
+        </pre>
+      ),
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      column: 'left' as const
+    }] : []),
     {
       id: 'steps',
       title: 'How it\'s done (Steps):',
@@ -78,6 +90,14 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       borderColor: 'border-purple-200',
       column: 'right' as const
     },
+    ...(card.exampleInAction ? [{
+      id: 'example-in-action',
+      title: 'Example in Action:',
+      content: <p className="text-sm text-gray-700 leading-relaxed">{card.exampleInAction}</p>,
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
+      column: 'right' as const
+    }] : []),
     ...(card.examplePrompts.some(p => p.title || p.prompt) ? [{
       id: 'example-prompts',
       title: 'Example Prompt(s):',
@@ -101,26 +121,6 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       ),
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200',
-      column: 'right' as const
-    }] : []),
-    ...(card.exampleInAction ? [{
-      id: 'example-in-action',
-      title: 'Example in Action:',
-      content: <p className="text-sm text-gray-700 leading-relaxed">{card.exampleInAction}</p>,
-      bgColor: 'bg-indigo-50',
-      borderColor: 'border-indigo-200',
-      column: 'right' as const
-    }] : []),
-    ...(card.promptTemplate ? [{
-      id: 'prompt-template',
-      title: 'Prompt Template:',
-      content: (
-        <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono bg-white p-2 rounded border">
-          {card.promptTemplate}
-        </pre>
-      ),
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200',
       column: 'right' as const
     }] : []),
     ...(card.perplexityChatLink ? [{
