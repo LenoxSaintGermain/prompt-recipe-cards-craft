@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import RecipeCardEditor, { RecipeCard } from '@/components/RecipeCardEditor';
 import RecipeCardPreview from '@/components/RecipeCardPreview';
@@ -91,6 +92,7 @@ Please focus on information from the last 12 months and include sources where po
    - Ways our [YOUR SERVICES] could align with their current priorities
 
 Please focus on information from the last [TIME PERIOD] and include sources where possible.`,
+        perplexityChatLink: '',
         tips: [
           'Be specific about the time frame - "last 6 months" works better than "recent".',
           'If the client is a smaller company with limited public information, focus the prompt on industry trends and ask for general insights.',
