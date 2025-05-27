@@ -40,7 +40,7 @@ const RecipeCardPreview: React.FC<RecipeCardPreviewProps> = ({ card, isSlideMode
 
           <CardContent className="p-4">
             <div className="grid grid-cols-2 gap-6">
-              {/* Left Column */}
+              {/* Left Column - Conceptual Information */}
               <div className="space-y-4">
                 {/* What it does */}
                 <section className="bg-blue-50 p-3 rounded-lg">
@@ -76,7 +76,7 @@ const RecipeCardPreview: React.FC<RecipeCardPreviewProps> = ({ card, isSlideMode
                 )}
               </div>
 
-              {/* Right Column */}
+              {/* Right Column - Implementation & Examples */}
               <div className="space-y-4">
                 {/* Steps */}
                 <section className="bg-purple-50 p-3 rounded-lg">
