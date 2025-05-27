@@ -6,6 +6,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { RecipeCard } from '../RecipeCardEditor';
 import DraggableSection from './DraggableSection';
 import LayoutEditor from './LayoutEditor';
+import { ExternalLink } from 'lucide-react';
 
 interface RearrangeableSlideLayoutProps {
   card: RecipeCard;
@@ -120,6 +121,29 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       ),
       bgColor: 'bg-orange-50',
       borderColor: 'border-orange-200',
+      column: 'right' as const
+    }] : []),
+    ...(card.perplexityChatLink ? [{
+      id: 'perplexity-chat',
+      title: 'Try it with Perplexity:',
+      content: (
+        <div className="bg-white rounded p-3 border border-teal-200">
+          <p className="text-sm text-gray-700 mb-3">
+            Click to try this template in Perplexity Chat
+          </p>
+          <a
+            href={card.perplexityChatLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+          >
+            Open in Perplexity
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      ),
+      bgColor: 'bg-teal-50',
+      borderColor: 'border-teal-200',
       column: 'right' as const
     }] : [])
   ], [card]);

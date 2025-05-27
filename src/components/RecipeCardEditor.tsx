@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,6 +17,7 @@ export interface RecipeCard {
   examplePrompts: { title: string; prompt: string }[];
   exampleInAction: string;
   promptTemplate: string;
+  perplexityChatLink: string;
   tips: string[];
 }
 
@@ -39,6 +39,7 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
       examplePrompts: [{ title: '', prompt: '' }],
       exampleInAction: '',
       promptTemplate: '',
+      perplexityChatLink: '',
       tips: ['']
     }
   );
@@ -256,6 +257,17 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
               placeholder="Provide a copy-paste ready template with clear placeholders..."
               className="mt-1"
               rows={6}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="perplexityChatLink">Perplexity Chat Link</Label>
+            <Input
+              id="perplexityChatLink"
+              value={formData.perplexityChatLink}
+              onChange={(e) => updateField('perplexityChatLink', e.target.value)}
+              placeholder="https://www.perplexity.ai/search/... (Link to Perplexity chat example)"
+              className="mt-1"
             />
           </div>
 
