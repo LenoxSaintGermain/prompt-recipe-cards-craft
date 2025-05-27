@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,16 +32,79 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   const [formData, setFormData] = useState<RecipeCard>(
     card || {
       id: '',
-      name: '',
-      whatItDoes: '',
-      whoItsFor: '',
-      difficulty: 'Beginner',
-      steps: [''],
-      examplePrompts: [{ title: '', prompt: '' }],
-      exampleInAction: '',
-      promptTemplate: '',
+      name: 'Extract Key Points from Scientific Literature',
+      whatItDoes: 'This process leverages Perplexity Enterprise\'s (PE) capabilities to analyze scientific papers, studies, or medical literature from web-based sources and potentially uploaded documents. It identifies, summarizes, and presents the key findings, methodologies, and implications of the research in a structured and digestible format. This streamlines the literature review process, saving time compared to manually sifting through extensive content.',
+      whoItsFor: 'This is highly relevant for professionals who need to quickly understand the core contributions of scientific research, including Medical Writers, individuals in Scientific Affairs roles, and members of Publications teams. It is also broadly applicable to anyone doing academic research.',
+      difficulty: 'Intermediate',
+      steps: [
+        'Define Your Research Scope: Clearly identify the topic, the type of scientific literature you are interested in (e.g., specific studies, review articles), and the key types of information you need to extract (e.g., primary findings, experimental setup, key conclusions, future implications).',
+        'Craft a Specific Initial Prompt: Use a detailed prompt that includes the topic, the desired output format (e.g., bullet points, structured sections), and the specific elements you want extracted (findings, methodology, implications). Request a specific persona, such as a research assistant or scientific analyst, to tailor the output style.',
+        'Use \'Academic\' Focus Mode: Before submitting your query, select the \'Academic\' focus mode in Perplexity to prioritize scholarly sources like peer-reviewed journals and research papers. You can also use date filters (e.g., `after:YYYY-MM-DD`) to focus on recent publications.',
+        'Upload Specific Papers (Optional but Recommended): If you have specific scientific papers as PDF files, upload them to Perplexity. In your prompt, instruct Perplexity to analyze these specific documents and extract information from them, explicitly referencing the filename(s), e.g., "Analyze the attached paper \'[filename.pdf]\' and extract the key findings and methodology section". Note: Extracting data from complex formats like tables within PDFs may have limitations.',
+        'Request Summarization and Extraction: Ask Perplexity to summarize the key points or specific sections of the literature. Prompts can include phrases like "Summarize the key findings of recent studies on [topic]" or "Extract the methodology used in the attached paper \'[filename.pdf]\'".',
+        'Engage in Conversational Refinement: Review the initial response. Use follow-up questions to clarify details, request more information on specific aspects (e.g., "Can you elaborate on the statistical methods used?"), or ask for the implications for future research or practice. This iterative approach helps refine the results.',
+        'Critically Review and Verify Sources: ALWAYS critically review the extracted information for accuracy. Perplexity provides citations for its responses. Click on these citations to verify the information in the original source. Be aware that AI can occasionally "hallucinate" or provide incorrect citations or summaries. Cross-referencing information from multiple sources or other tools is recommended.',
+        'Organize Findings: Use Perplexity\'s features like \'Pages\' (if available in PE) or copy the extracted information into a separate document or note-taking tool to organize the key points according to your needs.',
+        'Add Human Expertise: Integrate the AI-extracted information with your own understanding, background knowledge, and critical analysis to produce a comprehensive and insightful summary or report. AI is a research assistant, not a replacement for your expertise.'
+      ],
+      examplePrompts: [
+        {
+          title: 'General Literature Review',
+          prompt: `Act as a scientific research assistant.
+
+Synthesize the key points from the most impactful recent studies (published in the last 2 years) on [Specific Scientific Topic].
+
+For each study, extract and summarize:
+- Primary Finding(s)
+- Key Methodology
+- Main Conclusion(s)
+- Implications for the field or future research
+
+Present the information as a bulleted list under clear headings for each study. Ensure all information is supported by citations from peer-reviewed sources.
+
+Use 'Academic' Focus mode for this prompt.`
+        },
+        {
+          title: 'Document Analysis & Key Point Extraction',
+          prompt: `Analyze the attached scientific paper, '[Specific Paper Title].pdf'.
+
+Extract the following key information:
+1. The research question or objective addressed by the study.
+2. A summary of the experimental methodology used.
+3. The primary results or findings.
+4. The authors' main conclusions.
+5. Any stated limitations of the study.
+6. The suggested future directions or implications.
+
+Present the information in a clear, structured format using numbered points or headings. Reference the attached document as the source for all extracted information.
+
+Upload the specified PDF file before submitting this prompt.`
+        }
+      ],
+      exampleInAction: 'A structured response that directly addresses the prompt\'s request for specific information types. For a general review prompt, it would list studies found (perhaps with a brief intro on the search parameters), followed by extracted bullet points for each study under headings like "Primary Finding," "Methodology," etc., with citations for each piece of information. For a document analysis prompt, it would present the requested points (Research Question, Methodology, Results, Conclusions, Limitations, Implications) derived specifically from the uploaded file, clearly indicating the source as the uploaded document. The language would be concise and factual, suitable for a scientific context.',
+      promptTemplate: `Act as a scientific research assistant.
+
+Synthesize the key points from the most impactful recent studies (published in the last [TIME PERIOD]) on [SPECIFIC SCIENTIFIC TOPIC].
+
+For each study, extract and summarize:
+- Primary Finding(s)
+- Key Methodology
+- Main Conclusion(s)
+- Implications for the field or future research
+
+Present the information as a bulleted list under clear headings for each study. Ensure all information is supported by citations from peer-reviewed sources.
+
+Use 'Academic' Focus mode for this prompt.`,
       perplexityChatLink: '',
-      tips: ['']
+      tips: [
+        'Always use \'Academic\' focus mode to prioritize peer-reviewed sources over general web content.',
+        'Be specific about time frames - "published in the last 2 years" works better than "recent studies".',
+        'When uploading PDFs, explicitly reference the filename in your prompt for better accuracy.',
+        'Use follow-up questions to dive deeper into methodology, statistical analysis, or implications.',
+        'Always verify citations by clicking through to the original sources - AI can occasionally provide incorrect references.',
+        'Structure your prompts to request specific headings (Research Question, Methodology, Results, Conclusions) for consistent output format.',
+        'Cross-reference findings across multiple sources when possible to ensure accuracy and completeness.'
+      ]
     }
   );
 
