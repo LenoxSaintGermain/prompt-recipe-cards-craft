@@ -31,7 +31,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       content: <p className="text-sm text-gray-700 leading-relaxed">{card.whatItDoes}</p>,
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
-      column: 'left'
+      column: 'left' as const
     },
     {
       id: 'who-its-for',
@@ -39,7 +39,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       content: <p className="text-sm text-gray-700 leading-relaxed">{card.whoItsFor}</p>,
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
-      column: 'left'
+      column: 'left' as const
     },
     ...(card.tips.some(tip => tip.trim()) ? [{
       id: 'tips',
@@ -56,7 +56,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       ),
       bgColor: 'bg-yellow-50',
       borderColor: 'border-yellow-200',
-      column: 'left'
+      column: 'left' as const
     }] : []),
     {
       id: 'steps',
@@ -75,7 +75,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       ),
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',
-      column: 'right'
+      column: 'right' as const
     },
     ...(card.examplePrompts.some(p => p.title || p.prompt) ? [{
       id: 'example-prompts',
@@ -100,7 +100,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       ),
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-200',
-      column: 'right'
+      column: 'right' as const
     }] : []),
     ...(card.exampleInAction ? [{
       id: 'example-in-action',
@@ -108,7 +108,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       content: <p className="text-sm text-gray-700 leading-relaxed">{card.exampleInAction}</p>,
       bgColor: 'bg-indigo-50',
       borderColor: 'border-indigo-200',
-      column: 'right'
+      column: 'right' as const
     }] : []),
     ...(card.promptTemplate ? [{
       id: 'prompt-template',
@@ -120,7 +120,7 @@ const RearrangeableSlideLayout: React.FC<RearrangeableSlideLayoutProps> = ({ car
       ),
       bgColor: 'bg-orange-50',
       borderColor: 'border-orange-200',
-      column: 'right'
+      column: 'right' as const
     }] : [])
   ], [card]);
 
