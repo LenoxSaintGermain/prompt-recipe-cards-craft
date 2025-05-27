@@ -2,7 +2,7 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-export const exportToPNG = async (elementId: string, filename: string) => {
+export const exportToPNG = async (elementId: string, filename: string, isSlideMode: boolean = false) => {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error('Element not found for export');
@@ -19,7 +19,7 @@ export const exportToPNG = async (elementId: string, filename: string) => {
     });
 
     const link = document.createElement('a');
-    link.download = `${filename}.png`;
+    link.download = `${filename}${isSlideMode ? '_slide' : ''}.png`;
     link.href = canvas.toDataURL();
     link.click();
   } catch (error) {
@@ -27,7 +27,7 @@ export const exportToPNG = async (elementId: string, filename: string) => {
   }
 };
 
-export const exportToPDF = async (elementId: string, filename: string) => {
+export const exportToPDF = async (elementId: string, filename: string, isSlideMode: boolean = false) => {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error('Element not found for export');
@@ -44,10 +44,15 @@ export const exportToPDF = async (elementId: string, filename: string) => {
     });
 
     const imgData = canvas.toDataURL('image/png');
+    
+    // Use landscape orientation for slide mode
+    const orientation = isSlideMode ? 'landscape' : 'portrait';
+    const format = 'a4';
+    
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation,
       unit: 'mm',
-      format: 'a4'
+      format
     });
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -56,10 +61,10 @@ export const exportToPDF = async (elementId: string, filename: string) => {
     const imgHeight = canvas.height;
     const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
     const imgX = (pdfWidth - imgWidth * ratio) / 2;
-    const imgY = 0;
+    const imgY = (pdfHeight - imgHeight * ratio) / 2;
 
     pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-    pdf.save(`${filename}.pdf`);
+    pdf.save(`${filename}${isSlideMode ? '_slide' : ''}.pdf`);
   } catch (error) {
     console.error('Error exporting to PDF:', error);
   }

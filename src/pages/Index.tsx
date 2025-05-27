@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import RecipeCardEditor, { RecipeCard } from '@/components/RecipeCardEditor';
 import RecipeCardPreview from '@/components/RecipeCardPreview';
 import RecipeCardLibrary from '@/components/RecipeCardLibrary';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Monitor, Presentation } from 'lucide-react';
 import { exportToPNG, exportToPDF } from '@/components/ExportUtils';
 import { toast } from 'sonner';
 
@@ -14,6 +13,7 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<View>('library');
   const [cards, setCards] = useState<RecipeCard[]>([]);
   const [currentCard, setCurrentCard] = useState<RecipeCard | undefined>();
+  const [isSlideMode, setIsSlideMode] = useState(false);
 
   // Load cards from localStorage on mount
   useEffect(() => {
@@ -155,11 +155,11 @@ Please focus on information from the last [TIME PERIOD] and include sources wher
       try {
         const filename = card.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         if (format === 'pdf') {
-          await exportToPDF('recipe-card-preview', filename);
-          toast.success('Recipe card exported as PDF!');
+          await exportToPDF('recipe-card-preview', filename, isSlideMode);
+          toast.success(`Recipe card exported as ${isSlideMode ? 'landscape ' : ''}PDF!`);
         } else {
-          await exportToPNG('recipe-card-preview', filename);
-          toast.success('Recipe card exported as PNG!');
+          await exportToPNG('recipe-card-preview', filename, isSlideMode);
+          toast.success(`Recipe card exported as ${isSlideMode ? 'slide-optimized ' : ''}PNG!`);
         }
       } catch (error) {
         toast.error('Export failed. Please try again.');
@@ -187,10 +187,37 @@ Please focus on information from the last [TIME PERIOD] and include sources wher
       {/* Navigation */}
       {currentView !== 'library' && (
         <div className="bg-white border-b border-gray-200 p-4">
-          <Button onClick={handleBackToLibrary} variant="ghost" className="mb-0">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Library
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button onClick={handleBackToLibrary} variant="ghost" className="mb-0">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Library
+            </Button>
+            
+            {/* Layout Mode Toggle - only show in preview */}
+            {currentView === 'preview' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Layout:</span>
+                <Button
+                  onClick={() => setIsSlideMode(false)}
+                  variant={!isSlideMode ? "default" : "outline"}
+                  size="sm"
+                  className="px-3"
+                >
+                  <Monitor className="w-4 h-4 mr-1" />
+                  Document
+                </Button>
+                <Button
+                  onClick={() => setIsSlideMode(true)}
+                  variant={isSlideMode ? "default" : "outline"}
+                  size="sm"
+                  className="px-3"
+                >
+                  <Presentation className="w-4 h-4 mr-1" />
+                  Slide
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -216,19 +243,19 @@ Please focus on information from the last [TIME PERIOD] and include sources wher
 
       {currentView === 'preview' && currentCard && (
         <div className="py-6">
-          <RecipeCardPreview card={currentCard} />
-          <div className="max-w-4xl mx-auto px-8 mt-6 flex gap-4">
+          <RecipeCardPreview card={currentCard} isSlideMode={isSlideMode} />
+          <div className={`${isSlideMode ? 'max-w-7xl' : 'max-w-4xl'} mx-auto px-8 mt-6 flex gap-4`}>
             <Button 
-              onClick={() => exportToPDF('recipe-card-preview', currentCard.name.replace(/[^a-z0-9]/gi, '_').toLowerCase())}
+              onClick={() => exportToPDF('recipe-card-preview', currentCard.name.replace(/[^a-z0-9]/gi, '_').toLowerCase(), isSlideMode)}
               className="bg-red-600 hover:bg-red-700"
             >
-              Export as PDF
+              Export as {isSlideMode ? 'Landscape ' : ''}PDF
             </Button>
             <Button 
-              onClick={() => exportToPNG('recipe-card-preview', currentCard.name.replace(/[^a-z0-9]/gi, '_').toLowerCase())}
+              onClick={() => exportToPNG('recipe-card-preview', currentCard.name.replace(/[^a-z0-9]/gi, '_').toLowerCase(), isSlideMode)}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              Export as PNG
+              Export as {isSlideMode ? 'Slide ' : ''}PNG
             </Button>
           </div>
         </div>
