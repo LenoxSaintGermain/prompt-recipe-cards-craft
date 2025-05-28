@@ -30,12 +30,12 @@ export const useRecipeCards = () => {
         whatItDoes: dbCard.what_it_does,
         whoItsFor: dbCard.who_its_for,
         difficulty: dbCard.difficulty as 'Beginner' | 'Intermediate' | 'Advanced',
-        steps: dbCard.steps || [],
-        examplePrompts: dbCard.example_prompts || [],
+        steps: Array.isArray(dbCard.steps) ? dbCard.steps as string[] : [],
+        examplePrompts: Array.isArray(dbCard.example_prompts) ? dbCard.example_prompts as string[] : [],
         exampleInAction: dbCard.example_in_action || '',
         promptTemplate: dbCard.prompt_template || '',
         perplexityChatLink: dbCard.perplexity_chat_link || '',
-        tips: dbCard.tips || []
+        tips: Array.isArray(dbCard.tips) ? dbCard.tips as string[] : []
       }));
 
       setCards(transformedCards);
