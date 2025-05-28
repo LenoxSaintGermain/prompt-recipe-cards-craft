@@ -9,7 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      recipe_cards: {
+        Row: {
+          created_at: string
+          difficulty: string
+          example_in_action: string | null
+          example_prompts: Json
+          id: string
+          name: string
+          perplexity_chat_link: string | null
+          prompt_template: string | null
+          steps: Json
+          tips: Json
+          updated_at: string
+          what_it_does: string
+          who_its_for: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty: string
+          example_in_action?: string | null
+          example_prompts?: Json
+          id?: string
+          name: string
+          perplexity_chat_link?: string | null
+          prompt_template?: string | null
+          steps?: Json
+          tips?: Json
+          updated_at?: string
+          what_it_does: string
+          who_its_for: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          example_in_action?: string | null
+          example_prompts?: Json
+          id?: string
+          name?: string
+          perplexity_chat_link?: string | null
+          prompt_template?: string | null
+          steps?: Json
+          tips?: Json
+          updated_at?: string
+          what_it_does?: string
+          who_its_for?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
