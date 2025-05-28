@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import RecipeCardEditor, { RecipeCard } from '@/components/RecipeCardEditor';
 import RecipeCardPreview from '@/components/RecipeCardPreview';
@@ -144,8 +143,22 @@ Please focus on information from the last [TIME PERIOD] and include sources wher
     toast.success('Recipe card deleted successfully!');
   };
 
-  const handleExportCard = async (card: RecipeCard, format: 'pdf' | 'png') => {
-    // Temporarily switch to preview view for export
+  const handleExportCard = async (card: RecipeCard, format: 'pdf' | 'png' | 'markdown') => {
+    if (format === 'markdown') {
+      // Handle markdown export directly without changing views
+      try {
+        const { exportToMarkdown } = await import('@/components/ExportUtils');
+        const filename = card.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        exportToMarkdown(card, filename);
+        toast.success('Recipe card exported as Markdown!');
+      } catch (error) {
+        toast.error('Markdown export failed. Please try again.');
+        console.error('Markdown export error:', error);
+      }
+      return;
+    }
+
+    // Temporarily switch to preview view for PDF/PNG export
     const originalView = currentView;
     const originalCard = currentCard;
     
