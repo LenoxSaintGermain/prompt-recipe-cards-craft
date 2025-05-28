@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ interface RecipeCardLibraryProps {
   onEditCard: (card: RecipeCard) => void;
   onViewCard: (card: RecipeCard) => void;
   onDeleteCard: (cardId: string) => void;
-  onExportCard: (card: RecipeCard, format: 'pdf' | 'png') => void;
+  onExportCard: (card: RecipeCard, format: 'pdf' | 'png' | 'markdown') => void;
 }
 
 const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
@@ -189,6 +188,15 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
                   >
                     <Download className="w-3 h-3 mr-1" />
                     PDF
+                  </Button>
+                  <Button
+                    onClick={() => onExportCard(card, 'markdown')}
+                    variant="outline"
+                    size="sm"
+                    className="text-green-600"
+                  >
+                    <FileText className="w-3 h-3 mr-1" />
+                    MD
                   </Button>
                   <Button
                     onClick={() => onDeleteCard(card.id)}
