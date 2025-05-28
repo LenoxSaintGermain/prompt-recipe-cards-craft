@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RecipeCard } from '@/components/RecipeCardEditor';
@@ -54,7 +53,6 @@ export const useRecipeCards = () => {
     try {
       // Transform RecipeCard to database format
       const dbCard = {
-        id: card.id || undefined,
         name: card.name,
         what_it_does: card.whatItDoes,
         who_its_for: card.whoItsFor,
@@ -81,7 +79,7 @@ export const useRecipeCards = () => {
         }
         toast.success('Recipe card updated successfully!');
       } else {
-        // Insert new card
+        // Insert new card - don't include id, let database generate it
         const { data, error } = await supabase
           .from('recipe_cards')
           .insert([dbCard])

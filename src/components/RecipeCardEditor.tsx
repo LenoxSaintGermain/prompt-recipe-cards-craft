@@ -91,11 +91,8 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   };
 
   const handleSave = () => {
-    const cardToSave = {
-      ...formData,
-      id: formData.id || Date.now().toString()
-    };
-    onSave(cardToSave);
+    // Don't generate a manual ID - let the database handle UUID generation
+    onSave(formData);
   };
 
   const handlePreview = () => {
