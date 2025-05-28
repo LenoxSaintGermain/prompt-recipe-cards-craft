@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import RecipeCardEditor, { RecipeCard } from '@/components/RecipeCardEditor';
 import RecipeCardPreview from '@/components/RecipeCardPreview';
 import RecipeCardLibrary from '@/components/RecipeCardLibrary';
+import ConnectionStatus from '@/components/ConnectionStatus';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Monitor, Presentation, Edit } from 'lucide-react';
+import { ArrowLeft, Monitor, Presentation, Edit, RefreshCw } from 'lucide-react';
 import { exportToPNG, exportToPDF } from '@/components/ExportUtils';
 import { toast } from 'sonner';
 import { useRecipeCards } from '@/hooks/useRecipeCards';
@@ -16,7 +18,7 @@ const Index = () => {
   const [isSlideMode, setIsSlideMode] = useState(false);
   const [previousView, setPreviousView] = useState<View>('library');
   
-  const { cards, loading, saveCard, deleteCard } = useRecipeCards();
+  const { cards, loading, error, saveCard, deleteCard, reloadCards } = useRecipeCards();
 
   const handleSaveCard = async (card: RecipeCard) => {
     const success = await saveCard(card);
@@ -109,9 +111,14 @@ const Index = () => {
     setPreviousView('library');
   };
 
+  const handleRetry = () => {
+    reloadCards();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <ConnectionStatus />
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading recipe cards...</p>
@@ -120,8 +127,31 @@ const Index = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <ConnectionStatus />
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 mb-4">
+            <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.864-.833-2.634 0L5.098 18.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Connection Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Button onClick={handleRetry} className="flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <ConnectionStatus />
+      
       {/* Navigation */}
       {currentView !== 'library' && (
         <div className="bg-white border-b border-gray-200 p-4">

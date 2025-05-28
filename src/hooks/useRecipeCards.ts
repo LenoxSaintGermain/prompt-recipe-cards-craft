@@ -1,29 +1,50 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RecipeCard } from '@/components/RecipeCardEditor';
 import { toast } from 'sonner';
+import { withRetry, isNetworkError } from '@/utils/retryUtils';
+import { useConnectionStatus } from '@/hooks/useConnectionStatus';
 
 export const useRecipeCards = () => {
   const [cards, setCards] = useState<RecipeCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { setConnecting } = useConnectionStatus();
 
-  // Load cards from Supabase
+  // Load cards from Supabase with retry logic
   const loadCards = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('recipe_cards')
-        .select('*')
-        .order('created_at', { ascending: false });
+      setError(null);
+      setConnecting(true);
 
-      if (error) {
-        console.error('Error loading cards:', error);
-        toast.error('Failed to load recipe cards');
-        return;
-      }
+      const result = await withRetry(
+        async () => {
+          const { data, error } = await supabase
+            .from('recipe_cards')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+          if (error) {
+            throw error;
+          }
+          return data;
+        },
+        {
+          maxAttempts: 3,
+          delayMs: 1000,
+          onRetry: (attempt, error) => {
+            console.log(`Retrying to load cards (attempt ${attempt}):`, error);
+            if (isNetworkError(error)) {
+              toast.info(`Connection issue. Retrying... (${attempt}/3)`);
+            }
+          }
+        }
+      );
 
       // Transform database data to match RecipeCard interface
-      const transformedCards: RecipeCard[] = data.map(dbCard => ({
+      const transformedCards: RecipeCard[] = result.map(dbCard => ({
         id: dbCard.id,
         name: dbCard.name,
         whatItDoes: dbCard.what_it_does,
@@ -40,17 +61,26 @@ export const useRecipeCards = () => {
       }));
 
       setCards(transformedCards);
+      setError(null);
     } catch (error) {
       console.error('Error loading cards:', error);
-      toast.error('Failed to load recipe cards');
+      const errorMessage = isNetworkError(error) 
+        ? 'Connection failed. Please check your internet connection and try again.'
+        : 'Failed to load recipe cards. Please try again.';
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
+      setConnecting(false);
     }
   };
 
-  // Save card to Supabase
+  // Save card to Supabase with retry logic
   const saveCard = async (card: RecipeCard) => {
     try {
+      setConnecting(true);
+      
       // Transform RecipeCard to database format
       const dbCard = {
         name: card.name,
@@ -65,66 +95,97 @@ export const useRecipeCards = () => {
         tips: card.tips
       };
 
-      if (card.id && cards.find(c => c.id === card.id)) {
-        // Update existing card
-        const { error } = await supabase
-          .from('recipe_cards')
-          .update(dbCard)
-          .eq('id', card.id);
+      await withRetry(
+        async () => {
+          if (card.id && cards.find(c => c.id === card.id)) {
+            // Update existing card
+            const { error } = await supabase
+              .from('recipe_cards')
+              .update(dbCard)
+              .eq('id', card.id);
 
-        if (error) {
-          console.error('Error updating card:', error);
-          toast.error('Failed to update recipe card');
-          return false;
-        }
-        toast.success('Recipe card updated successfully!');
-      } else {
-        // Insert new card - don't include id, let database generate it
-        const { data, error } = await supabase
-          .from('recipe_cards')
-          .insert([dbCard])
-          .select()
-          .single();
+            if (error) throw error;
+          } else {
+            // Insert new card - don't include id, let database generate it
+            const { data, error } = await supabase
+              .from('recipe_cards')
+              .insert([dbCard])
+              .select()
+              .single();
 
-        if (error) {
-          console.error('Error creating card:', error);
-          toast.error('Failed to create recipe card');
-          return false;
+            if (error) throw error;
+          }
+        },
+        {
+          maxAttempts: 3,
+          delayMs: 1000,
+          onRetry: (attempt, error) => {
+            console.log(`Retrying to save card (attempt ${attempt}):`, error);
+            if (isNetworkError(error)) {
+              toast.info(`Connection issue. Retrying save... (${attempt}/3)`);
+            }
+          }
         }
-        toast.success('Recipe card created successfully!');
-      }
+      );
+
+      const action = card.id && cards.find(c => c.id === card.id) ? 'updated' : 'created';
+      toast.success(`Recipe card ${action} successfully!`);
 
       // Reload cards to get updated data
       await loadCards();
       return true;
     } catch (error) {
       console.error('Error saving card:', error);
-      toast.error('Failed to save recipe card');
+      const errorMessage = isNetworkError(error)
+        ? 'Connection failed. Please check your internet connection and try again.'
+        : 'Failed to save recipe card. Please try again.';
+      
+      toast.error(errorMessage);
       return false;
+    } finally {
+      setConnecting(false);
     }
   };
 
-  // Delete card from Supabase
+  // Delete card from Supabase with retry logic
   const deleteCard = async (cardId: string) => {
     try {
-      const { error } = await supabase
-        .from('recipe_cards')
-        .delete()
-        .eq('id', cardId);
+      setConnecting(true);
 
-      if (error) {
-        console.error('Error deleting card:', error);
-        toast.error('Failed to delete recipe card');
-        return false;
-      }
+      await withRetry(
+        async () => {
+          const { error } = await supabase
+            .from('recipe_cards')
+            .delete()
+            .eq('id', cardId);
+
+          if (error) throw error;
+        },
+        {
+          maxAttempts: 3,
+          delayMs: 1000,
+          onRetry: (attempt, error) => {
+            console.log(`Retrying to delete card (attempt ${attempt}):`, error);
+            if (isNetworkError(error)) {
+              toast.info(`Connection issue. Retrying delete... (${attempt}/3)`);
+            }
+          }
+        }
+      );
 
       toast.success('Recipe card deleted successfully!');
       await loadCards();
       return true;
     } catch (error) {
       console.error('Error deleting card:', error);
-      toast.error('Failed to delete recipe card');
+      const errorMessage = isNetworkError(error)
+        ? 'Connection failed. Please check your internet connection and try again.'
+        : 'Failed to delete recipe card. Please try again.';
+      
+      toast.error(errorMessage);
       return false;
+    } finally {
+      setConnecting(false);
     }
   };
 
@@ -135,6 +196,7 @@ export const useRecipeCards = () => {
   return {
     cards,
     loading,
+    error,
     saveCard,
     deleteCard,
     reloadCards: loadCards
