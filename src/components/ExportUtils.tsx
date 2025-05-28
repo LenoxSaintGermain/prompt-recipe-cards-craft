@@ -1,3 +1,4 @@
+
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -70,6 +71,7 @@ export const exportToPDF = async (elementId: string, filename: string, isSlideMo
 };
 
 export const exportToMarkdown = (card: any, filename: string) => {
+  console.log('Exporting to Markdown:', card.name, filename);
   try {
     let markdown = `# ${card.name}\n\n`;
     
@@ -87,7 +89,7 @@ export const exportToMarkdown = (card: any, filename: string) => {
     });
     markdown += '\n';
     
-    if (card.examplePrompts.length > 0) {
+    if (card.examplePrompts && card.examplePrompts.length > 0) {
       markdown += `## Example Prompts\n`;
       card.examplePrompts.forEach((example: any, index: number) => {
         markdown += `### ${example.title || `Example ${index + 1}`}\n`;
@@ -112,7 +114,7 @@ export const exportToMarkdown = (card: any, filename: string) => {
       markdown += `## Try it in Perplexity\n[Open in Perplexity](${card.perplexityChatLink})\n\n`;
     }
     
-    if (card.tips.length > 0) {
+    if (card.tips && card.tips.length > 0) {
       markdown += `## Tips for Best Results\n`;
       card.tips.forEach((tip: string) => {
         markdown += `- ${tip}\n`;
@@ -126,6 +128,8 @@ export const exportToMarkdown = (card: any, filename: string) => {
     link.download = `${filename}.md`;
     link.click();
     URL.revokeObjectURL(url);
+    
+    console.log('Markdown export completed successfully');
   } catch (error) {
     console.error('Error exporting to Markdown:', error);
   }
