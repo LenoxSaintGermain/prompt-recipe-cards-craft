@@ -32,55 +32,69 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   const [formData, setFormData] = useState<RecipeCard>(
     card || {
       id: '',
-      name: 'Transform Bullet Points into Polished Content',
-      whatItDoes: 'This task utilizes the text generation capabilities of AI models, such as the Large Language Models (LLMs) that power tools like Perplexity and others like ChatGPT or Claude. It takes a collection of raw, unformatted notes or bullet points provided by the user and converts them into cohesive, grammatically correct, and well-structured paragraphs. The goal is to produce polished content that matches a specified tone, style, or purpose, essentially acting as a writing assistant. This goes beyond simple summarization by adding structure, flow, and professional language.',
-      whoItsFor: 'Content creators, Marketing teams, and anyone drafting communications. This could also be beneficial for Publications team members preparing content, Medical Writers structuring reports, Scientific Affairs personnel summarizing findings, or even academic researchers drafting sections of papers or presentations based on their notes. The ability to quickly convert notes into narrative can enhance productivity across many roles that involve writing.',
-      difficulty: 'Beginner',
+      name: 'Create a Comparison Table from Unstructured Data',
+      whatItDoes: 'This task leverages AI\'s natural language processing and information synthesis capabilities, available through platforms like Perplexity AI and other tools powered by Large Language Models (LLMs). It takes multiple pieces of unstructured text – such as product descriptions, summaries of studies, evaluations of approaches, or notes on different options – and analyzes them to identify key features, characteristics, or points of comparison mentioned within the text. The AI then organizes this extracted information into a structured comparison table, highlighting both similarities and differences between the items described. This transforms raw, potentially lengthy text into a clear, easy-to-read format for evaluation.',
+      whoItsFor: 'Scientific Services, Marketing, and Decision-makers evaluating options. This also directly applies to Researchers and Academics comparing findings from multiple studies, Product/Project Managers evaluating different tools or strategic approaches, Business Analysts comparing market trends or competitive offerings, and Content Creators/Writers synthesizing information from multiple sources for articles or reports.',
+      difficulty: 'Intermediate',
       steps: [
-        'Prepare Your Bullet Points/Notes: Gather and organize the raw information you want to transform into polished content. Ensure the points are clear enough for the AI to understand the core ideas.',
-        'Define the Desired Output: Determine the specific format, tone, purpose, and target audience for the polished content. Are you writing an email, a report section, a website blurb, or marketing copy? What style is needed (formal, informal, persuasive, informative)?',
-        'Craft a Clear Prompt: Write a prompt that explicitly instructs the AI to perform the transformation. Include your prepared bullet points directly in the prompt. Clearly state the desired output characteristics (format, tone, purpose, length). For example, you might specify "Convert these notes into a persuasive paragraph for a marketing email" or "Turn these points into a concise summary for a project update document."',
-        'Submit the Query: Enter your prompt and bullet points into the AI interface (e.g., Perplexity\'s main chat window, or a specific mode if available). Perplexity Pro users can choose different underlying models like GPT-4o or Claude 3.5 Sonnet which might have slightly different strengths in text generation.',
-        'Review the Generated Content: Read the AI\'s output carefully. Check if it accurately reflects your original notes, if the tone and style are appropriate, and if the structure is logical and flows well.',
-        'Refine and Edit: AI-generated text may sometimes require editing for accuracy, clarity, or to match very specific nuances. Use follow-up prompts to request revisions (e.g., "Make it sound more enthusiastic," "Shorten this section," "Expand on the point about [X]"), or manually edit the text yourself. Remember to verify information, especially if the notes contain specific data points.'
+        'Gather Your Unstructured Data: Collect the text descriptions for the items you want to compare. This could be paragraphs, notes, or excerpts from documents.',
+        'Identify Key Comparison Criteria (Optional but Recommended): Determine the specific aspects you want the AI to focus on for the comparison (e.g., features, benefits, limitations, cost, performance metrics). Listing these explicitly in the prompt often leads to better results.',
+        'Craft a Clear Prompt: Write a prompt instructing the AI to create a comparison table. State the task, introduce the items to be compared, provide the unstructured text for each item with clear separators, include key comparison criteria, and specify the desired table format.',
+        'Submit the Query: Enter your prompt and text data into the AI interface. Using models like GPT-4o or Claude 3.5 Sonnet (available via Perplexity Pro) might handle the complexity better. Consider using "Pro Search" or "Co-Pilot" features if available.',
+        'Review the Generated Table: Examine the output table. Check that all items are included, the criteria are relevant and correctly extracted from the text, and the information presented is accurate according to your source texts. Be mindful of potential AI hallucinations or misinterpretations.',
+        'Refine and Edit: If the table isn\'t quite right, use follow-up prompts to request changes (e.g., "Add a column for [Criterion X]," "Correct the information for [Item Y]," "Reformat the table"). Manual editing may also be necessary to ensure perfect accuracy and clarity.'
       ],
       examplePrompts: [
         {
-          title: 'General Purpose',
-          prompt: `Please transform the following bullet points into a well-structured paragraph. The tone should be informative and professional.
+          title: 'Implicit Criteria Comparison',
+          prompt: `Please create a comparison table based on the following descriptions of two different AI search tools. Identify the key features and benefits mentioned for each.
 
-- Key finding 1: AI adoption increasing across industries.
-- Barrier identified: Lack of leadership readiness, not employee readiness.
-- Solution suggested: Leaders must invest in employee training and empower managers.
-- Outcome: Companies can accelerate towards AI maturity and gain competitive advantage.`
+Tool A: Perplexity AI
+This AI-powered search engine provides direct, contextual answers using LLMs and real-time information retrieval. It offers source citations for its responses, enhancing credibility. Perplexity AI has a conversational interface and suggests follow-up questions to refine searches. It's available in Standard, Pro, and Enterprise tiers, with Pro offering access to models like GPT-4o and Claude 3.5 Sonnet, unlimited searches, and file uploads. It's known for accuracy in research tasks.
+
+Tool B: ChatGPT
+This is a powerful conversational AI model known for generating human-like text. It's versatile for content creation, coding, and summarizing. ChatGPT supports multimodal inputs (text, image, audio) and integrates with DALL-E for image generation. It offers custom GPTs for specialized uses. Available in free and paid tiers, though free tiers may have usage limits and less current information compared to paid tiers like Plus or Pro. Sometimes prone to providing inaccurate or "hallucinated" information.`
         },
         {
-          title: 'Specific Tone/Format',
-          prompt: `Convert these notes into a concise, engaging blurb for a social media post announcing a new product feature. Keep it under 150 characters and use emojis.
+          title: 'Explicit Criteria Comparison',
+          prompt: `Compare the two AI research methodologies described below using a table. Focus the comparison specifically on the following criteria:
 
-- New feature: Real-time data sync.
-- Benefit: Always see the latest info instantly.
-- Benefit: Improves collaboration and decision-making.
-- Call to action: Try it out today!`
+1. Primary Goal
+2. Key Steps Involved
+3. Main Output/Result
+4. Advantages
+5. Potential Limitations
+
+Method 1: Literature Review Builder (Perplexity AI)
+This method uses an AI prompt to find major studies on a topic, summarize key findings, and provide publication details. It speeds up background reading and helps researchers stay organized. The process involves asking the AI to identify cited articles, request summaries, and get publication info. The output is concise summaries and source details. Advantages include speed and organization.
+
+Method 2: Research Gap Identifier (Perplexity AI)
+This involves requesting the AI to analyze recent publications on a topic to highlight overlooked angles or missing data. It helps researchers identify current trends deserving deeper analysis to shape fresh lines of inquiry. The process involves prompting the AI to analyze publications and identify gaps. The output highlights areas for further study. It helps generate fresh research questions.`
         }
       ],
-      exampleInAction: 'AI adoption is increasing across various industries. However, a key barrier identified is not employees\' readiness, but rather the lack of leadership preparedness. To overcome this, leaders must actively invest in employee training and empower managers to drive adoption. By doing so, companies can accelerate their progress towards AI maturity and position themselves to gain a significant competitive advantage in the future.',
-      promptTemplate: `Please transform the following bullet points into a well-structured [FORMAT TYPE - paragraph/summary/email section]. The tone should be [TONE - informative/professional/persuasive/casual].
+      exampleInAction: 'A structured comparison table that transforms scattered text descriptions into organized rows and columns. For example, comparing AI tools would result in a table with columns for features like "Primary Function," "Information Type," "Source Handling," "Interface," "Model Access," and "Accuracy Notes," with each tool\'s characteristics clearly laid out in separate rows for easy comparison and decision-making.',
+      promptTemplate: `Create a comparison table from the following information.
 
-- [BULLET POINT 1]
-- [BULLET POINT 2]
-- [BULLET POINT 3]
-- [BULLET POINT 4]
+Items to Compare:
+[ITEM 1 NAME]: [DESCRIPTION/TEXT FOR ITEM 1]
 
-Additional requirements: [SPECIFY LENGTH, SPECIAL FORMATTING, TARGET AUDIENCE, etc.]`,
+[ITEM 2 NAME]: [DESCRIPTION/TEXT FOR ITEM 2]
+
+[ITEM 3 NAME]: [DESCRIPTION/TEXT FOR ITEM 3]
+
+Compare these based on the following criteria: [LIST YOUR DESIRED CRITERIA]
+OR
+Analyze the text and identify the key similarities and differences.
+
+Present the output in a table format.`,
       perplexityChatLink: '',
       tips: [
-        'Be specific about the desired tone and format - "professional email tone" works better than just "professional".',
-        'Provide clear, well-organized bullet points as input - the better your notes, the better the output.',
-        'Use follow-up prompts to refine: "Make it sound more enthusiastic," "Shorten this section," or "Expand on point X".',
-        'Different AI models may have different strengths in text generation - experiment with available options.',
-        'Always review and verify the generated content, especially if your notes contain specific data points or claims.',
-        'For marketing content, specify target audience and desired call-to-action in your prompt.'
+        'Be specific about comparison criteria in your prompt - explicit criteria usually produce better, more focused tables than letting the AI choose.',
+        'Use clear separators (headings, numbers, bullets) between different items in your prompt to help the AI distinguish between them.',
+        'For complex comparisons, consider using follow-up prompts to add specific columns or refine criteria rather than trying to get everything perfect in one prompt.',
+        'Always verify the accuracy of extracted information against your original source texts - AI can misinterpret nuanced or contradictory information.',
+        'If working with technical or specialized content, consider specifying the audience level (e.g., "for technical experts" vs "for general audience") in your prompt.',
+        'Use models like GPT-4o or Claude 3.5 Sonnet when available for better handling of complex synthesis tasks.'
       ]
     }
   );
