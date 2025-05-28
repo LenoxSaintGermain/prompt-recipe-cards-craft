@@ -32,69 +32,53 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   const [formData, setFormData] = useState<RecipeCard>(
     card || {
       id: '',
-      name: 'Create a Comparison Table from Unstructured Data',
-      whatItDoes: 'This task leverages AI\'s natural language processing and information synthesis capabilities, available through platforms like Perplexity AI and other tools powered by Large Language Models (LLMs). It takes multiple pieces of unstructured text – such as product descriptions, summaries of studies, evaluations of approaches, or notes on different options – and analyzes them to identify key features, characteristics, or points of comparison mentioned within the text. The AI then organizes this extracted information into a structured comparison table, highlighting both similarities and differences between the items described. This transforms raw, potentially lengthy text into a clear, easy-to-read format for evaluation.',
-      whoItsFor: 'Scientific Services, Marketing, and Decision-makers evaluating options. This also directly applies to Researchers and Academics comparing findings from multiple studies, Product/Project Managers evaluating different tools or strategic approaches, Business Analysts comparing market trends or competitive offerings, and Content Creators/Writers synthesizing information from multiple sources for articles or reports.',
-      difficulty: 'Intermediate',
+      name: 'Extract Action Items from Meeting Notes',
+      whatItDoes: 'This task leverages the capabilities of AI models, such as Large Language Models (LLMs) that power tools like Perplexity AI and ChatGPT, to process unstructured text data. Specifically, it involves inputting raw text from meeting notes or transcripts. The AI then uses natural language processing to understand the content, identify statements that represent commitments or required tasks, and extract key details associated with those tasks, such as who is responsible and any mentioned deadlines. Finally, it structures this extracted information into a clear, organized list or table.',
+      whoItsFor: 'Project Managers, Team Leads, and anyone following up after meetings. This extends to Business Analysts documenting project tasks and responsibilities, Product/Project Managers ensuring tasks are captured and assigned post-meeting, Team Leads maintaining accountability and tracking progress within a team, and anyone needing to synthesize decisions and tasks from discussions.',
+      difficulty: 'Beginner',
       steps: [
-        'Gather Your Unstructured Data: Collect the text descriptions for the items you want to compare. This could be paragraphs, notes, or excerpts from documents.',
-        'Identify Key Comparison Criteria (Optional but Recommended): Determine the specific aspects you want the AI to focus on for the comparison (e.g., features, benefits, limitations, cost, performance metrics). Listing these explicitly in the prompt often leads to better results.',
-        'Craft a Clear Prompt: Write a prompt instructing the AI to create a comparison table. State the task, introduce the items to be compared, provide the unstructured text for each item with clear separators, include key comparison criteria, and specify the desired table format.',
-        'Submit the Query: Enter your prompt and text data into the AI interface. Using models like GPT-4o or Claude 3.5 Sonnet (available via Perplexity Pro) might handle the complexity better. Consider using "Pro Search" or "Co-Pilot" features if available.',
-        'Review the Generated Table: Examine the output table. Check that all items are included, the criteria are relevant and correctly extracted from the text, and the information presented is accurate according to your source texts. Be mindful of potential AI hallucinations or misinterpretations.',
-        'Refine and Edit: If the table isn\'t quite right, use follow-up prompts to request changes (e.g., "Add a column for [Criterion X]," "Correct the information for [Item Y]," "Reformat the table"). Manual editing may also be necessary to ensure perfect accuracy and clarity.'
+        'Prepare Your Meeting Notes: Gather the text from your meeting notes or transcript. Ensure it\'s reasonably clear, even if informal.',
+        'Identify Desired Output Details: Determine what specific information you want to extract for each action item (e.g., the task itself, the person responsible, a deadline, relevant context).',
+        'Craft a Clear Prompt: Write a prompt instructing the AI to perform the task. State the goal ("Extract action items," "Identify tasks and owners"), provide the meeting notes text, specify the details to extract ("Include who is responsible and any deadlines mentioned"), and request a clear output format ("Present as a bulleted list," "Format as a table").',
+        'Submit the Query: Enter your prompt and the meeting notes text into the AI interface.',
+        'Review the Generated Output: Examine the list or table provided by the AI. Check if all relevant action items were captured, if the responsible parties and deadlines are correct according to the notes, and if the formatting is as requested. Be aware that AI can sometimes misinterpret nuances or "hallucinate" details not present in the text.',
+        'Refine and Edit: If necessary, use follow-up prompts to correct omissions or errors ("You missed the task assigned to John about the report," "Could you add a column for the deadline?"). Manual editing of the generated output is often required for perfect accuracy and completeness, especially with informal notes.'
       ],
       examplePrompts: [
         {
-          title: 'Implicit Criteria Comparison',
-          prompt: `Please create a comparison table based on the following descriptions of two different AI search tools. Identify the key features and benefits mentioned for each.
+          title: 'Basic Extraction',
+          prompt: `Extract all action items and who is responsible from the following meeting notes.
 
-Tool A: Perplexity AI
-This AI-powered search engine provides direct, contextual answers using LLMs and real-time information retrieval. It offers source citations for its responses, enhancing credibility. Perplexity AI has a conversational interface and suggests follow-up questions to refine searches. It's available in Standard, Pro, and Enterprise tiers, with Pro offering access to models like GPT-4o and Claude 3.5 Sonnet, unlimited searches, and file uploads. It's known for accuracy in research tasks.
-
-Tool B: ChatGPT
-This is a powerful conversational AI model known for generating human-like text. It's versatile for content creation, coding, and summarizing. ChatGPT supports multimodal inputs (text, image, audio) and integrates with DALL-E for image generation. It offers custom GPTs for specialized uses. Available in free and paid tiers, though free tiers may have usage limits and less current information compared to paid tiers like Plus or Pro. Sometimes prone to providing inaccurate or "hallucinated" information.`
+Meeting Notes Summary:
+We discussed the Q3 marketing campaign. Sarah needs to draft the initial social media posts by EOD Friday. John will review the draft by Monday morning. The team agreed to finalize the budget proposal, Emily offered to take the lead on that and aims to have it ready by the end of next week. We also briefly touched on the website update, but decided to defer action items until the next meeting.`
         },
         {
-          title: 'Explicit Criteria Comparison',
-          prompt: `Compare the two AI research methodologies described below using a table. Focus the comparison specifically on the following criteria:
+          title: 'Structured Output Request',
+          prompt: `From the meeting notes below, create a table listing each Action Item, the Responsible Person, and the Deadline mentioned.
 
-1. Primary Goal
-2. Key Steps Involved
-3. Main Output/Result
-4. Advantages
-5. Potential Limitations
-
-Method 1: Literature Review Builder (Perplexity AI)
-This method uses an AI prompt to find major studies on a topic, summarize key findings, and provide publication details. It speeds up background reading and helps researchers stay organized. The process involves asking the AI to identify cited articles, request summaries, and get publication info. The output is concise summaries and source details. Advantages include speed and organization.
-
-Method 2: Research Gap Identifier (Perplexity AI)
-This involves requesting the AI to analyze recent publications on a topic to highlight overlooked angles or missing data. It helps researchers identify current trends deserving deeper analysis to shape fresh lines of inquiry. The process involves prompting the AI to analyze publications and identify gaps. The output highlights areas for further study. It helps generate fresh research questions.`
+Meeting Notes:
+- Action: Develop content strategy for new blog series. Assignee: Mark. Deadline: November 15th.
+- Discussed vendor options for the new software. Need to schedule demos with Vendor A and Vendor C. Lisa will coordinate scheduling with Vendor A this week.
+- Review user feedback report from Q2. This is assigned to the product team, no specific person yet. Aim to have preliminary findings by end of month.
+- Follow up with Sales on lead qualification criteria. David will handle this by the end of the day tomorrow.`
         }
       ],
-      exampleInAction: 'A structured comparison table that transforms scattered text descriptions into organized rows and columns. For example, comparing AI tools would result in a table with columns for features like "Primary Function," "Information Type," "Source Handling," "Interface," "Model Access," and "Accuracy Notes," with each tool\'s characteristics clearly laid out in separate rows for easy comparison and decision-making.',
-      promptTemplate: `Create a comparison table from the following information.
+      exampleInAction: 'The AI produces a structured list or table format. For example: "• Draft initial social media posts: Sarah (by EOD Friday) • Review social media draft: John (by Monday morning) • Finalize budget proposal: Emily (by end of next week)" or a formatted table with columns for Action Item, Responsible Person, and Deadline.',
+      promptTemplate: `Extract [list the types of information you want, e.g., action items, responsible persons, deadlines] from the following text.
 
-Items to Compare:
-[ITEM 1 NAME]: [DESCRIPTION/TEXT FOR ITEM 1]
+[Paste or clearly indicate the meeting notes/transcript text here.]
 
-[ITEM 2 NAME]: [DESCRIPTION/TEXT FOR ITEM 2]
+Present the results as [e.g., a bulleted list, a table].
 
-[ITEM 3 NAME]: [DESCRIPTION/TEXT FOR ITEM 3]
-
-Compare these based on the following criteria: [LIST YOUR DESIRED CRITERIA]
-OR
-Analyze the text and identify the key similarities and differences.
-
-Present the output in a table format.`,
+Optional: "Only include items with a deadline," or "Ignore discussions, only list confirmed tasks."`,
       perplexityChatLink: '',
       tips: [
-        'Be specific about comparison criteria in your prompt - explicit criteria usually produce better, more focused tables than letting the AI choose.',
-        'Use clear separators (headings, numbers, bullets) between different items in your prompt to help the AI distinguish between them.',
-        'For complex comparisons, consider using follow-up prompts to add specific columns or refine criteria rather than trying to get everything perfect in one prompt.',
-        'Always verify the accuracy of extracted information against your original source texts - AI can misinterpret nuanced or contradictory information.',
-        'If working with technical or specialized content, consider specifying the audience level (e.g., "for technical experts" vs "for general audience") in your prompt.',
-        'Use models like GPT-4o or Claude 3.5 Sonnet when available for better handling of complex synthesis tasks.'
+        'Be specific about the output format in your prompt - "create a table with columns for Action, Owner, Deadline" works better than just "organize the action items."',
+        'If your meeting notes are very informal or contain lots of discussion, consider asking the AI to "only extract confirmed commitments" to avoid capturing tentative ideas.',
+        'Use follow-up prompts to refine results: "Add a priority level to each item" or "Group related action items together."',
+        'Always verify the extracted information against your original notes - AI can sometimes miss context or assign tasks to the wrong person.',
+        'For recurring meetings, save successful prompts as templates to maintain consistency in how action items are formatted.',
+        'If working with audio transcripts, consider cleaning up obvious transcription errors before processing, as they can confuse the AI\'s understanding.'
       ]
     }
   );
