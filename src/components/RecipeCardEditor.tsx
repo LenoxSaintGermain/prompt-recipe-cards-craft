@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -32,78 +31,66 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   const [formData, setFormData] = useState<RecipeCard>(
     card || {
       id: '',
-      name: 'Extract Key Points from Scientific Literature',
-      whatItDoes: 'This process leverages Perplexity Enterprise\'s (PE) capabilities to analyze scientific papers, studies, or medical literature from web-based sources and potentially uploaded documents. It identifies, summarizes, and presents the key findings, methodologies, and implications of the research in a structured and digestible format. This streamlines the literature review process, saving time compared to manually sifting through extensive content.',
-      whoItsFor: 'This is highly relevant for professionals who need to quickly understand the core contributions of scientific research, including Medical Writers, individuals in Scientific Affairs roles, and members of Publications teams. It is also broadly applicable to anyone doing academic research.',
+      name: 'Find Relevant Information Across Multiple Documents',
+      whatItDoes: 'This process utilizes Perplexity Enterprise\'s capabilities, including file uploads and potential integrations with internal repositories (like those offered by Perplexity Enterprise Pro), to search through multiple documents. It aims to identify and extract specific information or relevant sections on a given topic, presenting the findings with citations that link back to the original source documents. This is especially useful for synthesizing information scattered across various internal reports, research papers, or policy documents.',
+      whoItsFor: 'This is beneficial for anyone needing to gather specific details from a collection of internal or external documents. It\'s particularly valuable for Medical Writers, individuals in Scientific Affairs, Publications team members, or new employees who need to quickly get up to speed on a topic by pulling information from existing company documentation.',
       difficulty: 'Intermediate',
       steps: [
-        'Define Your Research Scope: Clearly identify the topic, the type of scientific literature you are interested in (e.g., specific studies, review articles), and the key types of information you need to extract (e.g., primary findings, experimental setup, key conclusions, future implications).',
-        'Craft a Specific Initial Prompt: Use a detailed prompt that includes the topic, the desired output format (e.g., bullet points, structured sections), and the specific elements you want extracted (findings, methodology, implications). Request a specific persona, such as a research assistant or scientific analyst, to tailor the output style.',
-        'Use \'Academic\' Focus Mode: Before submitting your query, select the \'Academic\' focus mode in Perplexity to prioritize scholarly sources like peer-reviewed journals and research papers. You can also use date filters (e.g., `after:YYYY-MM-DD`) to focus on recent publications.',
-        'Upload Specific Papers (Optional but Recommended): If you have specific scientific papers as PDF files, upload them to Perplexity. In your prompt, instruct Perplexity to analyze these specific documents and extract information from them, explicitly referencing the filename(s), e.g., "Analyze the attached paper \'[filename.pdf]\' and extract the key findings and methodology section". Note: Extracting data from complex formats like tables within PDFs may have limitations.',
-        'Request Summarization and Extraction: Ask Perplexity to summarize the key points or specific sections of the literature. Prompts can include phrases like "Summarize the key findings of recent studies on [topic]" or "Extract the methodology used in the attached paper \'[filename.pdf]\'".',
-        'Engage in Conversational Refinement: Review the initial response. Use follow-up questions to clarify details, request more information on specific aspects (e.g., "Can you elaborate on the statistical methods used?"), or ask for the implications for future research or practice. This iterative approach helps refine the results.',
-        'Critically Review and Verify Sources: ALWAYS critically review the extracted information for accuracy. Perplexity provides citations for its responses. Click on these citations to verify the information in the original source. Be aware that AI can occasionally "hallucinate" or provide incorrect citations or summaries. Cross-referencing information from multiple sources or other tools is recommended.',
-        'Organize Findings: Use Perplexity\'s features like \'Pages\' (if available in PE) or copy the extracted information into a separate document or note-taking tool to organize the key points according to your needs.',
-        'Add Human Expertise: Integrate the AI-extracted information with your own understanding, background knowledge, and critical analysis to produce a comprehensive and insightful summary or report. AI is a research assistant, not a replacement for your expertise.'
+        'Identify the Specific Information Needed: Clearly define the precise topic or specific data points you are looking for across the documents. The more specific your objective, the better you can formulate your prompt.',
+        'Gather and Prepare Documents: Collect the documents you need to search. If using standard Perplexity, you will likely need to upload them (Perplexity Pro offers unlimited uploads; Standard has limits). If your organization uses Perplexity Enterprise Pro, ensure the relevant internal repositories (like Google Drive, OneDrive, SharePoint) are connected.',
+        'Craft a Targeted Prompt: Write a prompt that explicitly instructs Perplexity to search within the uploaded documents or connected repositories. Include the specific information or topic you need to find. Specify the desired output format (e.g., bullet points per document, a synthesized summary with document references) and ask for citations from the source documents. Mention the file names or repository if applicable. Using phrases like "Across the following documents..." or "Within the connected [Repository Name]..." can be helpful.',
+        'Submit the Query: Use the appropriate feature within Perplexity (e.g., the file upload option, or the designated search interface for connected repositories in Enterprise Pro) to submit your prompt and the documents/context.',
+        'Review the Initial Response: Examine the information provided by Perplexity. Check if it directly addresses your query and if the output format is as requested. Look for the source citations linking to the specific documents.',
+        'Verify Information Against Sources: This is a critical step. Click on the provided citations or open the original documents to confirm that the information extracted by the AI is accurate and is indeed present in the cited location. Be aware that AI can sometimes "hallucinate" information or citations.',
+        'Refine and Iterate (If Needed): If the initial response is incomplete, inaccurate, or doesn\'t fully capture what you need, use follow-up questions. You can ask for more details, clarification, or request a search for a slightly different aspect of the topic within the same documents.',
+        'Synthesize and Organize Findings: Once you have verified the information, consolidate the relevant points. You can use Perplexity features like \'Pages\' (if available in PE) or copy the information into your own research notes or report, organizing it by theme, document, or as required for your final use.'
       ],
       examplePrompts: [
         {
-          title: 'General Literature Review',
-          prompt: `Act as a scientific research assistant.
+          title: 'Using Uploaded Documents',
+          prompt: `Analyze the following uploaded documents: '[Document A.pdf]', '[Document B.docx]', and '[Document C.txt]'.
 
-Synthesize the key points from the most impactful recent studies (published in the last 2 years) on [Specific Scientific Topic].
+Find all mentions of the safety profile and reported side effects of [Specific Drug Name].
 
-For each study, extract and summarize:
-- Primary Finding(s)
-- Key Methodology
-- Main Conclusion(s)
-- Implications for the field or future research
+For each mention found across the documents, state the side effect or safety finding, and cite which specific document it came from (e.g., [Document A.pdf]).
 
-Present the information as a bulleted list under clear headings for each study. Ensure all information is supported by citations from peer-reviewed sources.
+Present the findings as a clear, bulleted list, grouping findings by document where appropriate.
 
-Use 'Academic' Focus mode for this prompt.`
+Upload the specified files before submitting.`
         },
         {
-          title: 'Document Analysis & Key Point Extraction',
-          prompt: `Analyze the attached scientific paper, '[Specific Paper Title].pdf'.
+          title: 'Using Connected Repository - Enterprise',
+          prompt: `Search the connected 'Company Research Archive' repository.
 
-Extract the following key information:
-1. The research question or objective addressed by the study.
-2. A summary of the experimental methodology used.
-3. The primary results or findings.
-4. The authors' main conclusions.
-5. Any stated limitations of the study.
-6. The suggested future directions or implications.
+Locate information related to customer feedback and user satisfaction data for the '[Specific Product Name]' from Q1 and Q2 of the current year.
 
-Present the information in a clear, structured format using numbered points or headings. Reference the attached document as the source for all extracted information.
+Extract and summarize the key positive feedback points and key negative feedback points mentioned in any relevant documents.
 
-Upload the specified PDF file before submitting this prompt.`
+Present the summary in two distinct sections ('Positive Feedback' and 'Negative Feedback'), and cite the document(s) where each point or theme was found.
+
+This prompt assumes access to a connected repository like those available in Perplexity Enterprise Pro.`
         }
       ],
-      exampleInAction: 'A structured response that directly addresses the prompt\'s request for specific information types. For a general review prompt, it would list studies found (perhaps with a brief intro on the search parameters), followed by extracted bullet points for each study under headings like "Primary Finding," "Methodology," etc., with citations for each piece of information. For a document analysis prompt, it would present the requested points (Research Question, Methodology, Results, Conclusions, Limitations, Implications) derived specifically from the uploaded file, clearly indicating the source as the uploaded document. The language would be concise and factual, suitable for a scientific context.',
-      promptTemplate: `Act as a scientific research assistant.
+      exampleInAction: 'A structured response that presents the extracted information clearly. For using uploaded documents, this might be a bulleted list where each bullet details a safety finding or side effect and is followed by a citation like [Document B.docx]. For using connected repositories, it would present information under "Positive Feedback" and "Negative Feedback" headings, with each point referencing the source document(s) from the repository. The output should aim to be concise but comprehensive based on the specified documents, always providing the necessary source links for verification.',
+      promptTemplate: `Analyze the following uploaded documents: '[DOCUMENT 1]', '[DOCUMENT 2]', and '[DOCUMENT 3]'.
 
-Synthesize the key points from the most impactful recent studies (published in the last [TIME PERIOD]) on [SPECIFIC SCIENTIFIC TOPIC].
+Find all mentions of [SPECIFIC TOPIC OR INFORMATION NEEDED].
 
-For each study, extract and summarize:
-- Primary Finding(s)
-- Key Methodology
-- Main Conclusion(s)
-- Implications for the field or future research
+For each mention found across the documents, state the [FINDING TYPE], and cite which specific document it came from (e.g., [Document A.pdf]).
 
-Present the information as a bulleted list under clear headings for each study. Ensure all information is supported by citations from peer-reviewed sources.
+Present the findings as a clear, bulleted list, grouping findings by document where appropriate.
 
-Use 'Academic' Focus mode for this prompt.`,
+Upload the specified files before submitting.`,
       perplexityChatLink: '',
       tips: [
-        'Always use \'Academic\' focus mode to prioritize peer-reviewed sources over general web content.',
-        'Be specific about time frames - "published in the last 2 years" works better than "recent studies".',
-        'When uploading PDFs, explicitly reference the filename in your prompt for better accuracy.',
-        'Use follow-up questions to dive deeper into methodology, statistical analysis, or implications.',
-        'Always verify citations by clicking through to the original sources - AI can occasionally provide incorrect references.',
-        'Structure your prompts to request specific headings (Research Question, Methodology, Results, Conclusions) for consistent output format.',
-        'Cross-reference findings across multiple sources when possible to ensure accuracy and completeness.'
+        'Be very specific about what information you\'re looking for - vague queries will yield less useful results.',
+        'Always verify AI-extracted information by checking the original source documents through the provided citations.',
+        'Use clear file naming conventions to make it easier to reference specific documents in your prompts.',
+        'For Enterprise Pro users: ensure your repositories are properly connected and accessible before starting your search.',
+        'If initial results are incomplete, use follow-up questions to dive deeper into specific aspects or request different formatting.',
+        'Consider organizing your findings by document, theme, or chronologically depending on your final use case.',
+        'Be aware that complex document formats (like tables or charts) may not be perfectly extracted by AI - manual verification is crucial.',
+        'Use phrases like "Across the following documents..." or "Within the connected [Repository Name]..." to ensure Perplexity searches your specific sources.'
       ]
     }
   );
