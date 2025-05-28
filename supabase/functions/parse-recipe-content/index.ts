@@ -14,6 +14,9 @@ serve(async (req) => {
   try {
     const { content, provider = 'gemini' } = await req.json();
 
+    console.log('Parsing content with provider:', provider);
+    console.log('Content length:', content?.length);
+
     const prompt = `Analyze the following content and extract information to create a prompt recipe card. Return the response as a JSON object with the following structure:
 
 {
@@ -41,10 +44,12 @@ Focus on creating practical, actionable instructions and realistic examples. Mak
     if (provider === 'gemini') {
       const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
       if (!geminiApiKey) {
-        throw new Error('Gemini API key not configured');
+        throw new Error('Gemini API key not configured. Please add GEMINI_API_KEY to your Supabase secrets.');
       }
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+      console.log('Using Gemini API with key present:', !!geminiApiKey);
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,17 +61,24 @@ Focus on creating practical, actionable instructions and realistic examples. Mak
         }),
       });
 
+      console.log('Gemini API response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Gemini API error response:', errorText);
+        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Gemini API response received');
       generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     } else if (provider === 'claude') {
       const claudeApiKey = Deno.env.get('CLAUDE_API_KEY');
       if (!claudeApiKey) {
-        throw new Error('Claude API key not configured');
+        throw new Error('Claude API key not configured. Please add CLAUDE_API_KEY to your Supabase secrets.');
       }
+
+      console.log('Using Claude API with key present:', !!claudeApiKey);
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -86,12 +98,17 @@ Focus on creating practical, actionable instructions and realistic examples. Mak
       });
 
       if (!response.ok) {
-        throw new Error(`Claude API error: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Claude API error response:', errorText);
+        throw new Error(`Claude API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Claude API response received');
       generatedText = data.content?.[0]?.text || '';
     }
+
+    console.log('Generated text length:', generatedText?.length);
 
     // Parse the JSON response from AI
     let parsedData = {};
@@ -99,10 +116,15 @@ Focus on creating practical, actionable instructions and realistic examples. Mak
       const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         parsedData = JSON.parse(jsonMatch[0]);
+        console.log('Successfully parsed JSON data');
+      } else {
+        console.log('No JSON found in response, attempting direct parse');
+        parsedData = JSON.parse(generatedText);
       }
     } catch (parseError) {
       console.error('Error parsing AI response:', parseError);
-      throw new Error('Failed to parse AI response');
+      console.log('Raw AI response:', generatedText);
+      throw new Error(`Failed to parse AI response: ${parseError.message}`);
     }
 
     return new Response(JSON.stringify({ parsedData }), {
@@ -110,7 +132,10 @@ Focus on creating practical, actionable instructions and realistic examples. Mak
     });
   } catch (error) {
     console.error('Error in parse-recipe-content function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: 'Check edge function logs for more information'
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

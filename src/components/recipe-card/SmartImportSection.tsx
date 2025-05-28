@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Loader2 } from 'lucide-react';
+import { Wand2, Loader2, AlertCircle } from 'lucide-react';
 import { parseRecipeContent } from '@/services/aiService';
 import { toast } from 'sonner';
 import { RecipeCard } from '@/components/RecipeCardEditor';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface SmartImportSectionProps {
   onImport: (parsedData: Partial<RecipeCard>) => void;
@@ -16,6 +17,7 @@ interface SmartImportSectionProps {
 const SmartImportSection: React.FC<SmartImportSectionProps> = ({ onImport }) => {
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleParseContent = async () => {
     if (!content.trim()) {
@@ -24,14 +26,34 @@ const SmartImportSection: React.FC<SmartImportSectionProps> = ({ onImport }) => 
     }
 
     setIsLoading(true);
+    setError(null);
+    
     try {
-      const parsedData = await parseRecipeContent(content);
+      console.log('Attempting to parse content with Gemini...');
+      let parsedData;
+      
+      try {
+        parsedData = await parseRecipeContent(content, 'gemini');
+      } catch (geminiError) {
+        console.log('Gemini failed, trying Claude...', geminiError);
+        toast.warning('Gemini API unavailable, trying Claude...');
+        parsedData = await parseRecipeContent(content, 'claude');
+      }
+      
       onImport(parsedData);
       setContent('');
+      setError(null);
       toast.success('Content parsed successfully! Review and edit the populated fields.');
     } catch (error) {
       console.error('Error parsing content:', error);
-      toast.error('Failed to parse content. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to parse content';
+      setError(errorMessage);
+      
+      if (errorMessage.includes('API key not configured')) {
+        toast.error('AI API keys not configured. Please contact your administrator.');
+      } else {
+        toast.error('Failed to parse content. Please try again or check the content format.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +71,15 @@ const SmartImportSection: React.FC<SmartImportSectionProps> = ({ onImport }) => 
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div>
           <Label htmlFor="import-content">Content to Parse</Label>
           <Textarea

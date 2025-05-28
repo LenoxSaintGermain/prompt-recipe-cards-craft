@@ -9,6 +9,7 @@ import TemplateSection from '@/components/recipe-card/TemplateSection';
 import TipsSection from '@/components/recipe-card/TipsSection';
 import SmartImportSection from '@/components/recipe-card/SmartImportSection';
 import AICopilotPanel from '@/components/recipe-card/AICopilotPanel';
+import APIKeyStatus from '@/components/recipe-card/APIKeyStatus';
 
 export interface RecipeCard {
   id: string;
@@ -105,7 +106,12 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
     <div className="flex min-h-screen bg-gray-50">
       {/* Main Editor */}
       <div className="flex-1 max-w-4xl mx-auto p-6 space-y-6">
-        {!card && <SmartImportSection onImport={handleSmartImport} />}
+        {!card && (
+          <>
+            <APIKeyStatus />
+            <SmartImportSection onImport={handleSmartImport} />
+          </>
+        )}
         
         <Card className="border-2 border-purple-200">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
