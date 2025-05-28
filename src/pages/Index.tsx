@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import RecipeCardEditor, { RecipeCard } from '@/components/RecipeCardEditor';
 import RecipeCardPreview from '@/components/RecipeCardPreview';
 import RecipeCardLibrary from '@/components/RecipeCardLibrary';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Monitor, Presentation } from 'lucide-react';
+import { ArrowLeft, Monitor, Presentation, Edit } from 'lucide-react';
 import { exportToPNG, exportToPDF } from '@/components/ExportUtils';
 import { toast } from 'sonner';
 import { useRecipeCards } from '@/hooks/useRecipeCards';
@@ -15,6 +14,7 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<View>('library');
   const [currentCard, setCurrentCard] = useState<RecipeCard | undefined>();
   const [isSlideMode, setIsSlideMode] = useState(false);
+  const [previousView, setPreviousView] = useState<View>('library');
   
   const { cards, loading, saveCard, deleteCard } = useRecipeCards();
 
@@ -23,21 +23,25 @@ const Index = () => {
     if (success) {
       setCurrentView('library');
       setCurrentCard(undefined);
+      setPreviousView('library');
     }
   };
 
   const handleNewCard = () => {
     setCurrentCard(undefined);
     setCurrentView('editor');
+    setPreviousView('library');
   };
 
   const handleEditCard = (card: RecipeCard) => {
     setCurrentCard(card);
     setCurrentView('editor');
+    setPreviousView('library');
   };
 
   const handleViewCard = (card: RecipeCard) => {
     setCurrentCard(card);
+    setPreviousView('library');
     setCurrentView('preview');
   };
 
@@ -61,8 +65,10 @@ const Index = () => {
 
     const originalView = currentView;
     const originalCard = currentCard;
+    const originalPreviousView = previousView;
     
     setCurrentCard(card);
+    setPreviousView('library');
     setCurrentView('preview');
     
     setTimeout(async () => {
@@ -81,18 +87,26 @@ const Index = () => {
       } finally {
         setCurrentView(originalView);
         setCurrentCard(originalCard);
+        setPreviousView(originalPreviousView);
       }
     }, 100);
   };
 
   const handlePreviewFromEditor = (card: RecipeCard) => {
     setCurrentCard(card);
+    setPreviousView('editor');
     setCurrentView('preview');
   };
 
   const handleBackToLibrary = () => {
     setCurrentView('library');
     setCurrentCard(undefined);
+    setPreviousView('library');
+  };
+
+  const handleBackToEditor = () => {
+    setCurrentView('editor');
+    setPreviousView('library');
   };
 
   if (loading) {
@@ -112,10 +126,20 @@ const Index = () => {
       {currentView !== 'library' && (
         <div className="bg-white border-b border-gray-200 p-4">
           <div className="flex items-center justify-between">
-            <Button onClick={handleBackToLibrary} variant="ghost" className="mb-0">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Library
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={handleBackToLibrary} variant="ghost" className="mb-0">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Library
+              </Button>
+              
+              {/* Show Back to Editor button when in preview and came from editor */}
+              {currentView === 'preview' && previousView === 'editor' && (
+                <Button onClick={handleBackToEditor} variant="outline" className="mb-0">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Back to Editor
+                </Button>
+              )}
+            </div>
             
             {/* Layout Mode Toggle - only show in preview */}
             {currentView === 'preview' && (
