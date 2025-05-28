@@ -31,7 +31,9 @@ export const useRecipeCards = () => {
         whoItsFor: dbCard.who_its_for,
         difficulty: dbCard.difficulty as 'Beginner' | 'Intermediate' | 'Advanced',
         steps: Array.isArray(dbCard.steps) ? dbCard.steps as string[] : [],
-        examplePrompts: Array.isArray(dbCard.example_prompts) ? dbCard.example_prompts as string[] : [],
+        examplePrompts: Array.isArray(dbCard.example_prompts) 
+          ? dbCard.example_prompts as { title: string; prompt: string }[] 
+          : [],
         exampleInAction: dbCard.example_in_action || '',
         promptTemplate: dbCard.prompt_template || '',
         perplexityChatLink: dbCard.perplexity_chat_link || '',
