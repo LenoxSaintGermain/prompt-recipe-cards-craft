@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,66 +32,55 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   const [formData, setFormData] = useState<RecipeCard>(
     card || {
       id: '',
-      name: 'Find Relevant Information Across Multiple Documents',
-      whatItDoes: 'This process utilizes Perplexity Enterprise\'s capabilities, including file uploads and potential integrations with internal repositories (like those offered by Perplexity Enterprise Pro), to search through multiple documents. It aims to identify and extract specific information or relevant sections on a given topic, presenting the findings with citations that link back to the original source documents. This is especially useful for synthesizing information scattered across various internal reports, research papers, or policy documents.',
-      whoItsFor: 'This is beneficial for anyone needing to gather specific details from a collection of internal or external documents. It\'s particularly valuable for Medical Writers, individuals in Scientific Affairs, Publications team members, or new employees who need to quickly get up to speed on a topic by pulling information from existing company documentation.',
-      difficulty: 'Intermediate',
+      name: 'Transform Bullet Points into Polished Content',
+      whatItDoes: 'This task utilizes the text generation capabilities of AI models, such as the Large Language Models (LLMs) that power tools like Perplexity and others like ChatGPT or Claude. It takes a collection of raw, unformatted notes or bullet points provided by the user and converts them into cohesive, grammatically correct, and well-structured paragraphs. The goal is to produce polished content that matches a specified tone, style, or purpose, essentially acting as a writing assistant. This goes beyond simple summarization by adding structure, flow, and professional language.',
+      whoItsFor: 'Content creators, Marketing teams, and anyone drafting communications. This could also be beneficial for Publications team members preparing content, Medical Writers structuring reports, Scientific Affairs personnel summarizing findings, or even academic researchers drafting sections of papers or presentations based on their notes. The ability to quickly convert notes into narrative can enhance productivity across many roles that involve writing.',
+      difficulty: 'Beginner',
       steps: [
-        'Identify the Specific Information Needed: Clearly define the precise topic or specific data points you are looking for across the documents. The more specific your objective, the better you can formulate your prompt.',
-        'Gather and Prepare Documents: Collect the documents you need to search. If using standard Perplexity, you will likely need to upload them (Perplexity Pro offers unlimited uploads; Standard has limits). If your organization uses Perplexity Enterprise Pro, ensure the relevant internal repositories (like Google Drive, OneDrive, SharePoint) are connected.',
-        'Craft a Targeted Prompt: Write a prompt that explicitly instructs Perplexity to search within the uploaded documents or connected repositories. Include the specific information or topic you need to find. Specify the desired output format (e.g., bullet points per document, a synthesized summary with document references) and ask for citations from the source documents. Mention the file names or repository if applicable. Using phrases like "Across the following documents..." or "Within the connected [Repository Name]..." can be helpful.',
-        'Submit the Query: Use the appropriate feature within Perplexity (e.g., the file upload option, or the designated search interface for connected repositories in Enterprise Pro) to submit your prompt and the documents/context.',
-        'Review the Initial Response: Examine the information provided by Perplexity. Check if it directly addresses your query and if the output format is as requested. Look for the source citations linking to the specific documents.',
-        'Verify Information Against Sources: This is a critical step. Click on the provided citations or open the original documents to confirm that the information extracted by the AI is accurate and is indeed present in the cited location. Be aware that AI can sometimes "hallucinate" information or citations.',
-        'Refine and Iterate (If Needed): If the initial response is incomplete, inaccurate, or doesn\'t fully capture what you need, use follow-up questions. You can ask for more details, clarification, or request a search for a slightly different aspect of the topic within the same documents.',
-        'Synthesize and Organize Findings: Once you have verified the information, consolidate the relevant points. You can use Perplexity features like \'Pages\' (if available in PE) or copy the information into your own research notes or report, organizing it by theme, document, or as required for your final use.'
+        'Prepare Your Bullet Points/Notes: Gather and organize the raw information you want to transform into polished content. Ensure the points are clear enough for the AI to understand the core ideas.',
+        'Define the Desired Output: Determine the specific format, tone, purpose, and target audience for the polished content. Are you writing an email, a report section, a website blurb, or marketing copy? What style is needed (formal, informal, persuasive, informative)?',
+        'Craft a Clear Prompt: Write a prompt that explicitly instructs the AI to perform the transformation. Include your prepared bullet points directly in the prompt. Clearly state the desired output characteristics (format, tone, purpose, length). For example, you might specify "Convert these notes into a persuasive paragraph for a marketing email" or "Turn these points into a concise summary for a project update document."',
+        'Submit the Query: Enter your prompt and bullet points into the AI interface (e.g., Perplexity\'s main chat window, or a specific mode if available). Perplexity Pro users can choose different underlying models like GPT-4o or Claude 3.5 Sonnet which might have slightly different strengths in text generation.',
+        'Review the Generated Content: Read the AI\'s output carefully. Check if it accurately reflects your original notes, if the tone and style are appropriate, and if the structure is logical and flows well.',
+        'Refine and Edit: AI-generated text may sometimes require editing for accuracy, clarity, or to match very specific nuances. Use follow-up prompts to request revisions (e.g., "Make it sound more enthusiastic," "Shorten this section," "Expand on the point about [X]"), or manually edit the text yourself. Remember to verify information, especially if the notes contain specific data points.'
       ],
       examplePrompts: [
         {
-          title: 'Using Uploaded Documents',
-          prompt: `Analyze the following uploaded documents: '[Document A.pdf]', '[Document B.docx]', and '[Document C.txt]'.
+          title: 'General Purpose',
+          prompt: `Please transform the following bullet points into a well-structured paragraph. The tone should be informative and professional.
 
-Find all mentions of the safety profile and reported side effects of [Specific Drug Name].
-
-For each mention found across the documents, state the side effect or safety finding, and cite which specific document it came from (e.g., [Document A.pdf]).
-
-Present the findings as a clear, bulleted list, grouping findings by document where appropriate.
-
-Upload the specified files before submitting.`
+- Key finding 1: AI adoption increasing across industries.
+- Barrier identified: Lack of leadership readiness, not employee readiness.
+- Solution suggested: Leaders must invest in employee training and empower managers.
+- Outcome: Companies can accelerate towards AI maturity and gain competitive advantage.`
         },
         {
-          title: 'Using Connected Repository - Enterprise',
-          prompt: `Search the connected 'Company Research Archive' repository.
+          title: 'Specific Tone/Format',
+          prompt: `Convert these notes into a concise, engaging blurb for a social media post announcing a new product feature. Keep it under 150 characters and use emojis.
 
-Locate information related to customer feedback and user satisfaction data for the '[Specific Product Name]' from Q1 and Q2 of the current year.
-
-Extract and summarize the key positive feedback points and key negative feedback points mentioned in any relevant documents.
-
-Present the summary in two distinct sections ('Positive Feedback' and 'Negative Feedback'), and cite the document(s) where each point or theme was found.
-
-This prompt assumes access to a connected repository like those available in Perplexity Enterprise Pro.`
+- New feature: Real-time data sync.
+- Benefit: Always see the latest info instantly.
+- Benefit: Improves collaboration and decision-making.
+- Call to action: Try it out today!`
         }
       ],
-      exampleInAction: 'A structured response that presents the extracted information clearly. For using uploaded documents, this might be a bulleted list where each bullet details a safety finding or side effect and is followed by a citation like [Document B.docx]. For using connected repositories, it would present information under "Positive Feedback" and "Negative Feedback" headings, with each point referencing the source document(s) from the repository. The output should aim to be concise but comprehensive based on the specified documents, always providing the necessary source links for verification.',
-      promptTemplate: `Analyze the following uploaded documents: '[DOCUMENT 1]', '[DOCUMENT 2]', and '[DOCUMENT 3]'.
+      exampleInAction: 'AI adoption is increasing across various industries. However, a key barrier identified is not employees\' readiness, but rather the lack of leadership preparedness. To overcome this, leaders must actively invest in employee training and empower managers to drive adoption. By doing so, companies can accelerate their progress towards AI maturity and position themselves to gain a significant competitive advantage in the future.',
+      promptTemplate: `Please transform the following bullet points into a well-structured [FORMAT TYPE - paragraph/summary/email section]. The tone should be [TONE - informative/professional/persuasive/casual].
 
-Find all mentions of [SPECIFIC TOPIC OR INFORMATION NEEDED].
+- [BULLET POINT 1]
+- [BULLET POINT 2]
+- [BULLET POINT 3]
+- [BULLET POINT 4]
 
-For each mention found across the documents, state the [FINDING TYPE], and cite which specific document it came from (e.g., [Document A.pdf]).
-
-Present the findings as a clear, bulleted list, grouping findings by document where appropriate.
-
-Upload the specified files before submitting.`,
+Additional requirements: [SPECIFY LENGTH, SPECIAL FORMATTING, TARGET AUDIENCE, etc.]`,
       perplexityChatLink: '',
       tips: [
-        'Be very specific about what information you\'re looking for - vague queries will yield less useful results.',
-        'Always verify AI-extracted information by checking the original source documents through the provided citations.',
-        'Use clear file naming conventions to make it easier to reference specific documents in your prompts.',
-        'For Enterprise Pro users: ensure your repositories are properly connected and accessible before starting your search.',
-        'If initial results are incomplete, use follow-up questions to dive deeper into specific aspects or request different formatting.',
-        'Consider organizing your findings by document, theme, or chronologically depending on your final use case.',
-        'Be aware that complex document formats (like tables or charts) may not be perfectly extracted by AI - manual verification is crucial.',
-        'Use phrases like "Across the following documents..." or "Within the connected [Repository Name]..." to ensure Perplexity searches your specific sources.'
+        'Be specific about the desired tone and format - "professional email tone" works better than just "professional".',
+        'Provide clear, well-organized bullet points as input - the better your notes, the better the output.',
+        'Use follow-up prompts to refine: "Make it sound more enthusiastic," "Shorten this section," or "Expand on point X".',
+        'Different AI models may have different strengths in text generation - experiment with available options.',
+        'Always review and verify the generated content, especially if your notes contain specific data points or claims.',
+        'For marketing content, specify target audience and desired call-to-action in your prompt.'
       ]
     }
   );
