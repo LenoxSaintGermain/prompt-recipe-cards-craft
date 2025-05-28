@@ -56,3 +56,44 @@ export const improveRecipeCard = async (cardData: any, provider: 'gemini' | 'cla
     throw error;
   }
 };
+
+export const parseRecipeContent = async (content: string, provider: 'gemini' | 'claude' = 'gemini'): Promise<any> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('parse-recipe-content', {
+      body: { content, provider }
+    });
+
+    if (error) {
+      console.error('Error parsing recipe content:', error);
+      throw new Error('Failed to parse recipe content');
+    }
+
+    return data.parsedData || {};
+  } catch (error) {
+    console.error('Error parsing recipe content:', error);
+    throw error;
+  }
+};
+
+export const getRecipeAssistance = async (
+  field: string, 
+  currentValue: string, 
+  context: any, 
+  provider: 'gemini' | 'claude' = 'gemini'
+): Promise<string> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('recipe-assistant', {
+      body: { field, currentValue, context, provider }
+    });
+
+    if (error) {
+      console.error('Error getting recipe assistance:', error);
+      throw new Error('Failed to get recipe assistance');
+    }
+
+    return data.suggestion || '';
+  } catch (error) {
+    console.error('Error getting recipe assistance:', error);
+    throw error;
+  }
+};
