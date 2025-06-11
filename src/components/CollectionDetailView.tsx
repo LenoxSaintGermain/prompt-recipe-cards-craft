@@ -35,7 +35,25 @@ const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
   const loadCards = async () => {
     setLoading(true);
     const cardsData = await getCollectionCards(collection.id);
-    setCards(cardsData);
+    
+    // Transform database schema to RecipeCard interface
+    const transformedCards: RecipeCard[] = cardsData.map(card => ({
+      id: card.id,
+      name: card.name,
+      whatItDoes: card.what_it_does || '',
+      whoItsFor: card.who_its_for || '',
+      difficulty: card.difficulty as 'Beginner' | 'Intermediate' | 'Advanced',
+      steps: Array.isArray(card.steps) ? card.steps as string[] : [],
+      examplePrompts: Array.isArray(card.example_prompts) 
+        ? card.example_prompts as { title: string; prompt: string }[] 
+        : [],
+      exampleInAction: card.example_in_action || '',
+      promptTemplate: card.prompt_template || '',
+      perplexityChatLink: card.perplexity_chat_link || '',
+      tips: Array.isArray(card.tips) ? card.tips as string[] : []
+    }));
+    
+    setCards(transformedCards);
     setLoading(false);
   };
 

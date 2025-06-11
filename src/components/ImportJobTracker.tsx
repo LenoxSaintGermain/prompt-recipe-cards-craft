@@ -173,7 +173,7 @@ const ImportJobTracker: React.FC<ImportJobTrackerProps> = ({ onRefresh }) => {
                   <div className="flex items-center gap-2">
                     {getStatusIcon(job.status)}
                     <span className="text-sm">{job.name}</span>
-                    <Badge className={getStatusColor(job.status)} size="sm">
+                    <Badge className={getStatusColor(job.status)}>
                       {job.status}
                     </Badge>
                   </div>

@@ -152,17 +152,25 @@ export const useCollections = () => {
 
   const getCollectionCards = async (collectionId: string) => {
     try {
+      // First get card IDs in collection
+      const { data: cardRelations, error: relationsError } = await supabase
+        .from('card_collections')
+        .select('card_id')
+        .eq('collection_id', collectionId);
+
+      if (relationsError) throw relationsError;
+
+      const cardIds = cardRelations?.map(item => item.card_id) || [];
+
+      if (cardIds.length === 0) {
+        return [];
+      }
+
+      // Then get actual cards data
       const { data, error } = await supabase
         .from('recipe_cards')
         .select('*')
-        .in(
-          'id',
-          supabase
-            .from('card_collections')
-            .select('card_id')
-            .eq('collection_id', collectionId)
-            .then(({ data }) => data?.map(item => item.card_id) || [])
-        );
+        .in('card_id', cardIds);
 
       if (error) throw error;
       return data || [];
