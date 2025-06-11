@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { generateWithAI } from '@/services/aiService';
+import { Json } from '@/integrations/supabase/types';
 
 export interface ImportJob {
   id: string;
@@ -11,7 +12,10 @@ export interface ImportJob {
   total_cards: number;
   processed_cards: number;
   failed_cards: number;
-  error_log?: string;
+  error_log?: string | null;
+  created_at: string;
+  updated_at: string;
+  raw_data?: Json | null;
 }
 
 export interface CardTemplate {
@@ -38,12 +42,12 @@ export const useJsonImport = () => {
 
       const { data, error } = await supabase
         .from('import_jobs')
-        .insert([{
+        .insert({
           name,
           total_cards: templates.length,
-          raw_data: templates,
+          raw_data: templates as Json,
           status: 'pending'
-        }])
+        })
         .select()
         .single();
 
@@ -77,7 +81,7 @@ export const useJsonImport = () => {
 
       if (jobError) throw jobError;
 
-      const templates = job.raw_data as CardTemplate[];
+      const templates = job.raw_data as unknown as CardTemplate[];
       let processedCount = 0;
       let failedCount = 0;
       const errors: string[] = [];
@@ -128,7 +132,10 @@ export const useJsonImport = () => {
       console.error('Error processing import job:', error);
       await supabase
         .from('import_jobs')
-        .update({ status: 'failed', error_log: error.message })
+        .update({ 
+          status: 'failed', 
+          error_log: error instanceof Error ? error.message : String(error)
+        })
         .eq('id', jobId);
       
       toast.error('Import job failed.');
@@ -213,7 +220,22 @@ Return only valid JSON in this format:
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setImportJobs(data || []);
+      
+      // Transform the data to match our ImportJob interface
+      const transformedData: ImportJob[] = (data || []).map(job => ({
+        id: job.id,
+        name: job.name,
+        status: job.status as 'pending' | 'processing' | 'completed' | 'failed',
+        total_cards: job.total_cards,
+        processed_cards: job.processed_cards,
+        failed_cards: job.failed_cards,
+        error_log: job.error_log,
+        created_at: job.created_at,
+        updated_at: job.updated_at,
+        raw_data: job.raw_data
+      }));
+      
+      setImportJobs(transformedData);
     } catch (error) {
       console.error('Error loading import jobs:', error);
     }
