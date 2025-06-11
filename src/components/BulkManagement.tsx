@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCollections, Collection } from '@/hooks/useCollections';
 import { useJsonImport, CardTemplate } from '@/hooks/useJsonImport';
 import { RecipeCard } from './RecipeCardEditor';
-import { FolderPlus, Upload, Download, Plus, Trash2, Users, FileJson } from 'lucide-react';
+import ImportJobTracker from './ImportJobTracker';
+import { FolderPlus, Upload, Download, Plus, Trash2, Users, FileJson, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BulkManagementProps {
@@ -82,6 +82,7 @@ const BulkManagement: React.FC<BulkManagementProps> = ({
         setImportJobName('');
         setShowJsonImport(false);
         onRefresh();
+        toast.success('Import job started! Check the progress below.');
       }
     } catch (error) {
       toast.error('Invalid JSON format. Please check your input.');
@@ -140,186 +141,191 @@ const BulkManagement: React.FC<BulkManagementProps> = ({
   };
 
   return (
-    <Card className="border border-gray-200">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="w-5 h-5" />
-          Bulk Management
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Selection Info */}
-        {selectedCardIds.length > 0 && (
-          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedCardIds.length} cards selected
-            </span>
-            <Button
-              onClick={() => onSelectionChange([])}
-              variant="ghost"
-              size="sm"
-              className="text-blue-700"
-            >
-              Clear Selection
-            </Button>
-          </div>
-        )}
-
-        {/* Bulk Actions */}
-        <div className="flex flex-wrap gap-2">
+    <div className="space-y-6">
+      <Card className="border border-gray-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Bulk Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Selection Info */}
           {selectedCardIds.length > 0 && (
-            <>
-              <Button onClick={handleBulkExport} variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-1" />
-                Export Selected
+            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <span className="text-sm font-medium text-blue-900">
+                {selectedCardIds.length} cards selected
+              </span>
+              <Button
+                onClick={() => onSelectionChange([])}
+                variant="ghost"
+                size="sm"
+                className="text-blue-700"
+              >
+                Clear Selection
               </Button>
-              
-              <Select onValueChange={setSelectedCollection}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Add to collection..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {collections.map(collection => (
-                    <SelectItem key={collection.id} value={collection.id}>
-                      {collection.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              {selectedCollection && (
-                <Button onClick={handleAddToCollection} size="sm">
-                  Add to Collection
-                </Button>
-              )}
-            </>
-          )}
-
-          <Dialog open={showCreateCollection} onOpenChange={setShowCreateCollection}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <FolderPlus className="w-4 h-4 mr-1" />
-                New Collection
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Collection</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Collection name"
-                  value={newCollectionName}
-                  onChange={(e) => setNewCollectionName(e.target.value)}
-                />
-                <Textarea
-                  placeholder="Description (optional)"
-                  value={newCollectionDescription}
-                  onChange={(e) => setNewCollectionDescription(e.target.value)}
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setShowCreateCollection(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateCollection}>
-                    Create Collection
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={showJsonImport} onOpenChange={setShowJsonImport}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <FileJson className="w-4 h-4 mr-1" />
-                Import JSON
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Import Recipe Cards from JSON</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Import job name"
-                  value={importJobName}
-                  onChange={(e) => setImportJobName(e.target.value)}
-                />
-                <Textarea
-                  placeholder="Paste JSON data here..."
-                  value={jsonInput}
-                  onChange={(e) => setJsonInput(e.target.value)}
-                  className="min-h-48 font-mono text-sm"
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setShowJsonImport(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleJsonImport} disabled={importLoading}>
-                    {importLoading ? 'Processing...' : 'Import & Enhance with AI'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <div>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImportCollection}
-              className="hidden"
-              id="import-file"
-            />
-            <Button variant="outline" size="sm" asChild>
-              <label htmlFor="import-file" className="cursor-pointer">
-                <Upload className="w-4 h-4 mr-1" />
-                Import File
-              </label>
-            </Button>
-          </div>
-        </div>
-
-        {/* Collections List */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Collections</h4>
-          {collections.length === 0 ? (
-            <p className="text-sm text-gray-500">No collections yet</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {collections.map(collection => (
-                <div key={collection.id} className="flex items-center justify-between p-2 border rounded">
-                  <div>
-                    <span className="font-medium text-sm">{collection.name}</span>
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {collection.card_count} cards
-                    </Badge>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      onClick={() => exportCollection(collection.id)}
-                      variant="ghost"
-                      size="sm"
-                    >
-                      <Download className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      onClick={() => deleteCollection(collection.id)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
+
+          {/* Bulk Actions */}
+          <div className="flex flex-wrap gap-2">
+            {selectedCardIds.length > 0 && (
+              <>
+                <Button onClick={handleBulkExport} variant="outline" size="sm">
+                  <Download className="w-4 h-4 mr-1" />
+                  Export Selected
+                </Button>
+                
+                <Select onValueChange={setSelectedCollection}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Add to collection..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {collections.map(collection => (
+                      <SelectItem key={collection.id} value={collection.id}>
+                        {collection.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {selectedCollection && (
+                  <Button onClick={handleAddToCollection} size="sm">
+                    Add to Collection
+                  </Button>
+                )}
+              </>
+            )}
+
+            <Dialog open={showCreateCollection} onOpenChange={setShowCreateCollection}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FolderPlus className="w-4 h-4 mr-1" />
+                  New Collection
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Collection</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Collection name"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                  />
+                  <Textarea
+                    placeholder="Description (optional)"
+                    value={newCollectionDescription}
+                    onChange={(e) => setNewCollectionDescription(e.target.value)}
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setShowCreateCollection(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreateCollection}>
+                      Create Collection
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={showJsonImport} onOpenChange={setShowJsonImport}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FileJson className="w-4 h-4 mr-1" />
+                  Import JSON
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Import Recipe Cards from JSON</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Import job name"
+                    value={importJobName}
+                    onChange={(e) => setImportJobName(e.target.value)}
+                  />
+                  <Textarea
+                    placeholder="Paste JSON data here..."
+                    value={jsonInput}
+                    onChange={(e) => setJsonInput(e.target.value)}
+                    className="min-h-48 font-mono text-sm"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button variant="outline" onClick={() => setShowJsonImport(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleJsonImport} disabled={importLoading}>
+                      {importLoading ? 'Processing...' : 'Import & Enhance with AI'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <div>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportCollection}
+                className="hidden"
+                id="import-file"
+              />
+              <Button variant="outline" size="sm" asChild>
+                <label htmlFor="import-file" className="cursor-pointer">
+                  <Upload className="w-4 h-4 mr-1" />
+                  Import File
+                </label>
+              </Button>
+            </div>
+          </div>
+
+          {/* Collections List */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-700">Collections</h4>
+            {collections.length === 0 ? (
+              <p className="text-sm text-gray-500">No collections yet</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {collections.map(collection => (
+                  <div key={collection.id} className="flex items-center justify-between p-2 border rounded">
+                    <div>
+                      <span className="font-medium text-sm">{collection.name}</span>
+                      <Badge variant="secondary" className="ml-2 text-xs">
+                        {collection.card_count || 0} cards
+                      </Badge>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        onClick={() => exportCollection(collection.id)}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        <Download className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        onClick={() => deleteCollection(collection.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Import Job Tracker */}
+      <ImportJobTracker onRefresh={onRefresh} />
+    </div>
   );
 };
 

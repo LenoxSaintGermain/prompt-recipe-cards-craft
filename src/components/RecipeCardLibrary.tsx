@@ -4,9 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RecipeCard } from './RecipeCardEditor';
+import { useCollections } from '@/hooks/useCollections';
 import BulkManagement from './BulkManagement';
-import { Plus, Edit, Eye, Trash2, Download, Search, FileText } from 'lucide-react';
+import CollectionDetailView from './CollectionDetailView';
+import { Plus, Edit, Eye, Trash2, Download, Search, FileText, FolderOpen } from 'lucide-react';
 
 interface RecipeCardLibraryProps {
   cards: RecipeCard[];
@@ -31,15 +34,70 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   const [filteredCards, setFilteredCards] = useState(cards);
   const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
   const [showBulkManagement, setShowBulkManagement] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState<string>('all');
+  const [viewingCollection, setViewingCollection] = useState<string | null>(null);
+  const [cardCollectionMap, setCardCollectionMap] = useState<Record<string, string[]>>({});
+  
+  const { collections, getCollectionCards } = useCollections();
 
   useEffect(() => {
-    const filtered = cards.filter(card =>
-      card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.whatItDoes.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.whoItsFor.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    loadCardCollections();
+  }, [cards, collections]);
+
+  useEffect(() => {
+    filterCards();
+  }, [cards, searchTerm, selectedCollection, cardCollectionMap]);
+
+  const loadCardCollections = async () => {
+    const collectionMap: Record<string, string[]> = {};
+    
+    for (const card of cards) {
+      const cardCollections = collections.filter(collection => 
+        cardCollectionMap[card.id]?.includes(collection.id)
+      );
+      collectionMap[card.id] = cardCollections.map(c => c.name);
+    }
+    
+    // Load actual collection memberships from database
+    for (const collection of collections) {
+      const collectionCards = await getCollectionCards(collection.id);
+      collectionCards.forEach(card => {
+        if (!collectionMap[card.id]) {
+          collectionMap[card.id] = [];
+        }
+        if (!collectionMap[card.id].includes(collection.name)) {
+          collectionMap[card.id].push(collection.name);
+        }
+      });
+    }
+    
+    setCardCollectionMap(collectionMap);
+  };
+
+  const filterCards = async () => {
+    let filtered = cards;
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(card =>
+        card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        card.whatItDoes.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        card.whoItsFor.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by collection
+    if (selectedCollection !== 'all') {
+      const collection = collections.find(c => c.id === selectedCollection);
+      if (collection) {
+        const collectionCards = await getCollectionCards(selectedCollection);
+        const collectionCardIds = collectionCards.map(c => c.id);
+        filtered = filtered.filter(card => collectionCardIds.includes(card.id));
+      }
+    }
+
     setFilteredCards(filtered);
-  }, [cards, searchTerm]);
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -65,6 +123,26 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
       setSelectedCardIds([]);
     }
   };
+
+  const handleViewCollection = (collectionId: string) => {
+    setViewingCollection(collectionId);
+  };
+
+  // If viewing a collection, show the collection detail view
+  if (viewingCollection) {
+    const collection = collections.find(c => c.id === viewingCollection);
+    if (collection) {
+      return (
+        <CollectionDetailView
+          collection={collection}
+          onClose={() => setViewingCollection(null)}
+          onViewCard={onViewCard}
+          onEditCard={onEditCard}
+          onExportCard={onExportCard}
+        />
+      );
+    }
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -103,8 +181,8 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
         </div>
       )}
 
-      {/* Search */}
-      <div className="mb-6">
+      {/* Search and Filters */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
@@ -114,7 +192,52 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
             className="pl-10"
           />
         </div>
+        <Select value={selectedCollection} onValueChange={setSelectedCollection}>
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by collection..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Cards</SelectItem>
+            {collections.map(collection => (
+              <SelectItem key={collection.id} value={collection.id}>
+                {collection.name} ({collection.card_count || 0} cards)
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      {/* Collections Quick View */}
+      {collections.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Collections</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {collections.map(collection => (
+              <Card key={collection.id} className="cursor-pointer hover:shadow-md transition-shadow border border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FolderOpen className="w-4 h-4 text-blue-600" />
+                      <span className="font-medium text-sm">{collection.name}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {collection.card_count || 0}
+                    </Badge>
+                  </div>
+                  <Button
+                    onClick={() => handleViewCollection(collection.id)}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full mt-2 text-blue-600"
+                  >
+                    View Collection
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -203,7 +326,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
             <p className="text-gray-500 mb-4">
               {cards.length === 0 
                 ? 'Create your first recipe card to get started.'
-                : 'Try adjusting your search terms.'
+                : 'Try adjusting your search terms or collection filter.'
               }
             </p>
             {cards.length === 0 && (
@@ -241,6 +364,17 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
                 <p className="text-xs text-gray-500">
                   <strong>For:</strong> {card.whoItsFor}
                 </p>
+
+                {/* Show collection membership */}
+                {cardCollectionMap[card.id] && cardCollectionMap[card.id].length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {cardCollectionMap[card.id].map(collectionName => (
+                      <Badge key={collectionName} variant="outline" className="text-xs">
+                        {collectionName}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Button onClick={() => onViewCard(card)} variant="outline" size="sm">

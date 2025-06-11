@@ -25,26 +25,37 @@ export const useCollections = () => {
 
       const result = await withRetry(
         async () => {
-          const { data, error } = await supabase
+          // Get collections with proper card count using aggregation
+          const { data: collectionsData, error: collectionsError } = await supabase
             .from('collections')
-            .select(`
-              *,
-              card_collections(count)
-            `)
+            .select('*')
             .order('created_at', { ascending: false });
 
-          if (error) throw error;
-          return data;
+          if (collectionsError) throw collectionsError;
+
+          // Get card counts for each collection
+          const collectionsWithCount = await Promise.all(
+            collectionsData.map(async (collection) => {
+              const { count, error: countError } = await supabase
+                .from('card_collections')
+                .select('*', { count: 'exact', head: true })
+                .eq('collection_id', collection.id);
+
+              if (countError) {
+                console.error('Error counting cards for collection:', collection.id, countError);
+                return { ...collection, card_count: 0 };
+              }
+
+              return { ...collection, card_count: count || 0 };
+            })
+          );
+
+          return collectionsWithCount;
         },
         { maxAttempts: 3, delayMs: 1000 }
       );
 
-      const collectionsWithCount = result.map(collection => ({
-        ...collection,
-        card_count: collection.card_collections?.length || 0
-      }));
-
-      setCollections(collectionsWithCount);
+      setCollections(result);
     } catch (error) {
       console.error('Error loading collections:', error);
       const errorMessage = isNetworkError(error)
@@ -105,7 +116,7 @@ export const useCollections = () => {
 
       const { error } = await supabase
         .from('card_collections')
-        .insert(insertData);
+        .upsert(insertData, { onConflict: 'card_id,collection_id' });
 
       if (error) throw error;
 
@@ -139,8 +150,31 @@ export const useCollections = () => {
     }
   };
 
+  const getCollectionCards = async (collectionId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('recipe_cards')
+        .select('*')
+        .in(
+          'id',
+          supabase
+            .from('card_collections')
+            .select('card_id')
+            .eq('collection_id', collectionId)
+            .then(({ data }) => data?.map(item => item.card_id) || [])
+        );
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching collection cards:', error);
+      return [];
+    }
+  };
+
   const exportCollection = async (collectionId: string) => {
     try {
+      // Get collection data
       const { data: collectionData, error: collectionError } = await supabase
         .from('collections')
         .select('*')
@@ -149,16 +183,26 @@ export const useCollections = () => {
 
       if (collectionError) throw collectionError;
 
+      // Get card IDs in collection
+      const { data: cardRelations, error: relationsError } = await supabase
+        .from('card_collections')
+        .select('card_id')
+        .eq('collection_id', collectionId);
+
+      if (relationsError) throw relationsError;
+
+      const cardIds = cardRelations?.map(item => item.card_id) || [];
+
+      if (cardIds.length === 0) {
+        toast.error('Collection is empty, nothing to export.');
+        return false;
+      }
+
+      // Get actual cards data
       const { data: cardsData, error: cardsError } = await supabase
         .from('recipe_cards')
         .select('*')
-        .in('id', 
-          await supabase
-            .from('card_collections')
-            .select('card_id')
-            .eq('collection_id', collectionId)
-            .then(({ data }) => data?.map(item => item.card_id) || [])
-        );
+        .in('id', cardIds);
 
       if (cardsError) throw cardsError;
 
@@ -198,6 +242,7 @@ export const useCollections = () => {
     deleteCollection,
     addCardsToCollection,
     removeCardsFromCollection,
+    getCollectionCards,
     exportCollection,
     reloadCollections: loadCollections
   };
