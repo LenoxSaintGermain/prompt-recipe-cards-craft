@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { RecipeCard } from './RecipeCardEditor';
+import BulkManagement from './BulkManagement';
 import { Plus, Edit, Eye, Trash2, Download, Search, FileText } from 'lucide-react';
 
 interface RecipeCardLibraryProps {
@@ -13,6 +15,7 @@ interface RecipeCardLibraryProps {
   onViewCard: (card: RecipeCard) => void;
   onDeleteCard: (cardId: string) => void;
   onExportCard: (card: RecipeCard, format: 'pdf' | 'png' | 'markdown') => void;
+  onRefresh?: () => void;
 }
 
 const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
@@ -21,10 +24,13 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   onEditCard,
   onViewCard,
   onDeleteCard,
-  onExportCard
+  onExportCard,
+  onRefresh = () => {}
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredCards, setFilteredCards] = useState(cards);
+  const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
+  const [showBulkManagement, setShowBulkManagement] = useState(false);
 
   useEffect(() => {
     const filtered = cards.filter(card =>
@@ -44,6 +50,22 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
     }
   };
 
+  const handleSelectCard = (cardId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedCardIds(prev => [...prev, cardId]);
+    } else {
+      setSelectedCardIds(prev => prev.filter(id => id !== cardId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedCardIds(filteredCards.map(card => card.id));
+    } else {
+      setSelectedCardIds([]);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       {/* Header */}
@@ -53,12 +75,33 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
             <h1 className="text-3xl font-bold mb-2">Recipe Card Library</h1>
             <p className="text-purple-100">Manage your Perplexity Enterprise prompt recipes</p>
           </div>
-          <Button onClick={onNewCard} className="bg-white text-purple-600 hover:bg-gray-100">
-            <Plus className="w-4 h-4 mr-2" />
-            New Recipe Card
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setShowBulkManagement(!showBulkManagement)}
+              variant={showBulkManagement ? "secondary" : "outline"}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              Bulk Management
+            </Button>
+            <Button onClick={onNewCard} className="bg-white text-purple-600 hover:bg-gray-100">
+              <Plus className="w-4 h-4 mr-2" />
+              New Recipe Card
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Bulk Management Panel */}
+      {showBulkManagement && (
+        <div className="mb-6">
+          <BulkManagement
+            cards={cards}
+            selectedCardIds={selectedCardIds}
+            onSelectionChange={setSelectedCardIds}
+            onRefresh={onRefresh}
+          />
+        </div>
+      )}
 
       {/* Search */}
       <div className="mb-6">
@@ -127,6 +170,28 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
         </Card>
       </div>
 
+      {/* Bulk Selection Controls */}
+      {filteredCards.length > 0 && (
+        <div className="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="select-all"
+              checked={selectedCardIds.length === filteredCards.length}
+              onCheckedChange={handleSelectAll}
+            />
+            <label htmlFor="select-all" className="text-sm font-medium">
+              Select All ({filteredCards.length})
+            </label>
+          </div>
+          
+          {selectedCardIds.length > 0 && (
+            <Badge variant="secondary">
+              {selectedCardIds.length} selected
+            </Badge>
+          )}
+        </div>
+      )}
+
       {/* Cards Grid */}
       {filteredCards.length === 0 ? (
         <Card className="border-2 border-dashed border-gray-300">
@@ -155,9 +220,15 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
             <Card key={card.id} className="border border-gray-200 hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg font-semibold line-clamp-2 flex-1">
-                    {card.name}
-                  </CardTitle>
+                  <div className="flex items-start gap-3 flex-1">
+                    <Checkbox
+                      checked={selectedCardIds.includes(card.id)}
+                      onCheckedChange={(checked) => handleSelectCard(card.id, checked as boolean)}
+                    />
+                    <CardTitle className="text-lg font-semibold line-clamp-2 flex-1">
+                      {card.name}
+                    </CardTitle>
+                  </div>
                   <Badge className={`${getDifficultyColor(card.difficulty)} text-xs ml-2 flex-shrink-0`}>
                     {card.difficulty}
                   </Badge>

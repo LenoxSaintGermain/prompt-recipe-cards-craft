@@ -9,9 +9,109 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      card_collections: {
+        Row: {
+          card_id: string
+          collection_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          card_id: string
+          collection_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          card_id?: string
+          collection_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_collections_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "recipe_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "card_collections_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      import_jobs: {
+        Row: {
+          created_at: string
+          error_log: string | null
+          failed_cards: number
+          id: string
+          name: string
+          processed_cards: number
+          raw_data: Json | null
+          status: string
+          total_cards: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_log?: string | null
+          failed_cards?: number
+          id?: string
+          name: string
+          processed_cards?: number
+          raw_data?: Json | null
+          status?: string
+          total_cards?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_log?: string | null
+          failed_cards?: number
+          id?: string
+          name?: string
+          processed_cards?: number
+          raw_data?: Json | null
+          status?: string
+          total_cards?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recipe_cards: {
         Row: {
           created_at: string
+          department: string[] | null
           difficulty: string
           example_in_action: string | null
           example_prompts: Json
@@ -20,6 +120,7 @@ export type Database = {
           perplexity_chat_link: string | null
           prompt_template: string | null
           steps: Json
+          tags: string[] | null
           tips: Json
           updated_at: string
           what_it_does: string
@@ -27,6 +128,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          department?: string[] | null
           difficulty: string
           example_in_action?: string | null
           example_prompts?: Json
@@ -35,6 +137,7 @@ export type Database = {
           perplexity_chat_link?: string | null
           prompt_template?: string | null
           steps?: Json
+          tags?: string[] | null
           tips?: Json
           updated_at?: string
           what_it_does: string
@@ -42,6 +145,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          department?: string[] | null
           difficulty?: string
           example_in_action?: string | null
           example_prompts?: Json
@@ -50,6 +154,7 @@ export type Database = {
           perplexity_chat_link?: string | null
           prompt_template?: string | null
           steps?: Json
+          tags?: string[] | null
           tips?: Json
           updated_at?: string
           what_it_does?: string

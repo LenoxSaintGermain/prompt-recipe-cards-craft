@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import RecipeCardEditor, { RecipeCard } from '@/components/RecipeCardEditor';
 import RecipeCardPreview from '@/components/RecipeCardPreview';
@@ -208,6 +207,7 @@ const Index = () => {
           onViewCard={handleViewCard}
           onDeleteCard={handleDeleteCard}
           onExportCard={handleExportCard}
+          onRefresh={reloadCards}
         />
       )}
 
