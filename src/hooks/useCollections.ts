@@ -166,11 +166,11 @@ export const useCollections = () => {
         return [];
       }
 
-      // Then get actual cards data
+      // Then get actual cards data using the correct column name 'id'
       const { data, error } = await supabase
         .from('recipe_cards')
         .select('*')
-        .in('card_id', cardIds);
+        .in('id', cardIds);
 
       if (error) throw error;
       return data || [];
