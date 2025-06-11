@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -45,7 +44,7 @@ export const useJsonImport = () => {
         .insert({
           name,
           total_cards: templates.length,
-          raw_data: templates as Json,
+          raw_data: templates as unknown as Json,
           status: 'pending'
         })
         .select()
