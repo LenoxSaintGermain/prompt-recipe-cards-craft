@@ -17,27 +17,42 @@ serve(async (req) => {
     console.log('Parsing content with provider:', provider);
     console.log('Content length:', content?.length);
 
-    const prompt = `Analyze the following content and extract information to create a prompt recipe card. Return the response as a JSON object with the following structure:
+    // Enhanced prompt to detect and parse multiple recipe cards
+    const prompt = `Analyze the following content and extract information to create one or more prompt recipe cards. The content may contain multiple recipe cards separated by sections, headings, or dividers.
 
+Look for patterns that indicate multiple recipe cards such as:
+- "Prompt Recipe Card:" followed by content
+- "Recipe Card:" followed by content  
+- Section breaks with "---" or similar dividers
+- Multiple distinct workflows or procedures
+- Different titles/names for different procedures
+
+If you find multiple recipe cards, return them as an array. If only one card is found, return it as a single-item array.
+
+Return the response as a JSON object with this structure:
 {
-  "name": "Brief, descriptive title for the recipe",
-  "whatItDoes": "Clear explanation of what this prompt accomplishes",
-  "whoItsFor": "Target audience and roles who would benefit",
-  "difficulty": "Beginner, Intermediate, or Advanced",
-  "steps": ["Step 1 description", "Step 2 description", ...],
-  "examplePrompts": [
-    {"title": "Example 1 name", "prompt": "Full example prompt text"},
-    {"title": "Example 2 name", "prompt": "Full example prompt text"}
-  ],
-  "exampleInAction": "Description of what the output looks like",
-  "promptTemplate": "Template with placeholders like [input] that users can customize",
-  "tips": ["Tip 1", "Tip 2", ...]
+  "cards": [
+    {
+      "name": "Brief, descriptive title for the recipe",
+      "what_it_does": "Clear explanation of what this prompt accomplishes",
+      "who_its_for": "Target audience and roles who would benefit",
+      "difficulty": "Beginner, Intermediate, or Advanced",
+      "steps": ["Step 1 description", "Step 2 description", ...],
+      "example_prompts": [
+        {"title": "Example 1 name", "prompt": "Full example prompt text"},
+        {"title": "Example 2 name", "prompt": "Full example prompt text"}
+      ],
+      "example_in_action": "Description of what the output looks like",
+      "prompt_template": "Template with placeholders like [input] that users can customize",
+      "tips": ["Tip 1", "Tip 2", ...]
+    }
+  ]
 }
 
 Content to analyze:
 ${content}
 
-Focus on creating practical, actionable instructions and realistic examples. Make sure the difficulty level matches the complexity of the task.`;
+Focus on creating practical, actionable instructions and realistic examples. Make sure the difficulty level matches the complexity of the task. If the content contains workflow outlines or training materials, extract the individual recipe cards from within those materials.`;
 
     let generatedText = '';
 

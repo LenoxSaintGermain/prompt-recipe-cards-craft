@@ -7,7 +7,7 @@ import StepsSection from '@/components/recipe-card/StepsSection';
 import ExamplePromptsSection from '@/components/recipe-card/ExamplePromptsSection';
 import TemplateSection from '@/components/recipe-card/TemplateSection';
 import TipsSection from '@/components/recipe-card/TipsSection';
-import SmartImportSection from '@/components/recipe-card/SmartImportSection';
+import MultiCardImportSection from '@/components/recipe-card/MultiCardImportSection';
 import AICopilotPanel from '@/components/recipe-card/AICopilotPanel';
 import APIKeyStatus from '@/components/recipe-card/APIKeyStatus';
 
@@ -29,9 +29,15 @@ interface RecipeCardEditorProps {
   card?: RecipeCard;
   onSave: (card: RecipeCard) => void;
   onPreview: (card: RecipeCard) => void;
+  onBulkSave?: (cards: RecipeCard[]) => void;
 }
 
-const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPreview }) => {
+const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ 
+  card, 
+  onSave, 
+  onPreview, 
+  onBulkSave 
+}) => {
   const [formData, setFormData] = useState<RecipeCard>(
     card || {
       id: '',
@@ -52,12 +58,33 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSmartImport = (parsedData: Partial<RecipeCard>) => {
-    setFormData(prev => ({
-      ...prev,
-      ...parsedData,
-      id: prev.id // Keep the existing ID
-    }));
+  const handleSmartImport = (parsedCards: Partial<RecipeCard>[]) => {
+    if (parsedCards.length === 1) {
+      // Single card import - update current form
+      const parsedData = parsedCards[0];
+      setFormData(prev => ({
+        ...prev,
+        ...parsedData,
+        id: prev.id // Keep the existing ID
+      }));
+    } else if (parsedCards.length > 1 && onBulkSave) {
+      // Multi-card import - use bulk save
+      const cards: RecipeCard[] = parsedCards.map((data, index) => ({
+        id: '', // Let the database handle ID generation
+        name: data.name || `Untitled Card ${index + 1}`,
+        whatItDoes: data.what_it_does || data.whatItDoes || '',
+        whoItsFor: data.who_its_for || data.whoItsFor || '',
+        difficulty: data.difficulty || 'Beginner',
+        steps: data.steps || [''],
+        examplePrompts: data.example_prompts || data.examplePrompts || [{ title: '', prompt: '' }],
+        exampleInAction: data.example_in_action || data.exampleInAction || '',
+        promptTemplate: data.prompt_template || data.promptTemplate || '',
+        perplexityChatLink: '',
+        tips: data.tips || ['']
+      }));
+      
+      onBulkSave(cards);
+    }
   };
 
   const updateArrayField = (field: 'steps' | 'tips', index: number, value: string) => {
@@ -91,7 +118,6 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
   };
 
   const handleSave = () => {
-    // Don't generate a manual ID - let the database handle UUID generation
     onSave(formData);
   };
 
@@ -106,7 +132,7 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({ card, onSave, onPre
         {!card && (
           <>
             <APIKeyStatus />
-            <SmartImportSection onImport={handleSmartImport} />
+            <MultiCardImportSection onImport={handleSmartImport} />
           </>
         )}
         

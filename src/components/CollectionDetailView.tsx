@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Collection, useCollections } from '@/hooks/useCollections';
 import { RecipeCard } from './RecipeCardEditor';
 import { ArrowLeft, Trash2, Download, Eye, Edit } from 'lucide-react';
+import CollectionNameEditor from './CollectionNameEditor';
 
 interface CollectionDetailViewProps {
   collection: Collection;
@@ -27,6 +27,7 @@ const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
   const [cards, setCards] = useState<RecipeCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
+  const [currentCollection, setCurrentCollection] = useState(collection);
 
   useEffect(() => {
     loadCards();
@@ -65,6 +66,10 @@ const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
     loadCards();
   };
 
+  const handleNameUpdated = (newName: string) => {
+    setCurrentCollection(prev => ({ ...prev, name: newName }));
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner': return 'bg-green-100 text-green-800 border-green-300';
@@ -93,9 +98,14 @@ const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
               Back to Library
             </Button>
             <div>
-              <h1 className="text-3xl font-bold mb-2">{collection.name}</h1>
-              {collection.description && (
-                <p className="text-purple-100">{collection.description}</p>
+              <CollectionNameEditor
+                collectionId={currentCollection.id}
+                currentName={currentCollection.name}
+                onNameUpdated={handleNameUpdated}
+                className="text-white"
+              />
+              {currentCollection.description && (
+                <p className="text-purple-100">{currentCollection.description}</p>
               )}
             </div>
           </div>
