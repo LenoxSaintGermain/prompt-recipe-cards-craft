@@ -10,7 +10,7 @@ export interface CollectionSuggestion {
 export const useContentAnalysis = () => {
   const analyzeCardForCollections = (card: RecipeCard): CollectionSuggestion[] => {
     const suggestions: CollectionSuggestion[] = [];
-    const content = `${card.name} ${card.whatItDoes} ${card.whoItsFor} ${card.steps?.join(' ') || ''} ${card.tips?.join(' ') || ''} ${card.prompt_template || ''}`.toLowerCase();
+    const content = `${card.name} ${card.whatItDoes} ${card.whoItsFor} ${card.steps?.join(' ') || ''} ${card.tips?.join(' ') || ''} ${card.promptTemplate || ''}`.toLowerCase();
     
     // Perplexity Training Detection
     const perplexityKeywords = [
@@ -86,15 +86,15 @@ export const useContentAnalysis = () => {
       const mockCard: RecipeCard = {
         id: `temp-${index}`,
         name: template.name || '',
-        what_it_does: template.what_it_does || '',
-        who_its_for: template.who_its_for || '',
+        whatItDoes: template.what_it_does || '',
+        whoItsFor: template.who_its_for || '',
         difficulty: 'Beginner',
         steps: template.steps || [],
-        example_prompts: template.example_prompts || [],
+        examplePrompts: template.example_prompts || [],
         tips: template.tips || [],
-        prompt_template: template.prompt_template || '',
-        department: template.target_departments || [],
-        tags: [template.primary_llm_skill].filter(Boolean) || []
+        promptTemplate: template.prompt_template || '',
+        exampleInAction: '',
+        perplexityChatLink: ''
       };
       
       suggestions[template.name] = analyzeCardForCollections(mockCard);

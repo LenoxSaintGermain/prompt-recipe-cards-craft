@@ -49,15 +49,15 @@ const SmartImportSection: React.FC<SmartImportSectionProps> = ({ onImport }) => 
       const mockCard: RecipeCard = {
         id: 'temp',
         name: parsedData.name || '',
-        what_it_does: parsedData.what_it_does || '',
-        who_its_for: parsedData.who_its_for || '',
+        whatItDoes: parsedData.what_it_does || '',
+        whoItsFor: parsedData.who_its_for || '',
         difficulty: parsedData.difficulty || 'Beginner',
         steps: parsedData.steps || [],
-        example_prompts: parsedData.example_prompts || [],
+        examplePrompts: parsedData.example_prompts || [],
         tips: parsedData.tips || [],
-        prompt_template: parsedData.prompt_template || '',
-        department: parsedData.department || [],
-        tags: parsedData.tags || []
+        promptTemplate: parsedData.prompt_template || '',
+        exampleInAction: '',
+        perplexityChatLink: ''
       };
       
       const collectionSuggestions = analyzeCardForCollections(mockCard);
