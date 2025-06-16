@@ -8,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RecipeCard } from './RecipeCardEditor';
 import { useCollections } from '@/hooks/useCollections';
 import BulkManagement from './BulkManagement';
+import BulkActionToolbar from './BulkActionToolbar';
 import CollectionDetailView from './CollectionDetailView';
 import CollectionQuickActions from './CollectionQuickActions';
 import CollectionStats from './CollectionStats';
 import { Plus, Edit, Eye, Trash2, Download, Search, FileText, FolderOpen, Filter } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface RecipeCardLibraryProps {
   cards: RecipeCard[];
@@ -40,7 +42,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   const [viewingCollection, setViewingCollection] = useState<string | null>(null);
   const [cardCollectionMap, setCardCollectionMap] = useState<Record<string, string[]>>({});
   
-  const { collections, getCollectionCards, reloadCollections } = useCollections();
+  const { collections, getCollectionCards, addCardsToCollection, removeCardsFromCollection, reloadCollections } = useCollections();
 
   useEffect(() => {
     loadCardCollections();
@@ -99,6 +101,40 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
     }
 
     setFilteredCards(filtered);
+  };
+
+  const handleAssignToCollection = async (collectionId: string) => {
+    const success = await addCardsToCollection(collectionId, selectedCardIds);
+    if (success) {
+      setSelectedCardIds([]);
+      await loadCardCollections();
+      onRefresh();
+    }
+  };
+
+  const handleRemoveFromCollection = async (collectionId: string) => {
+    const success = await removeCardsFromCollection(collectionId, selectedCardIds);
+    if (success) {
+      setSelectedCardIds([]);
+      await loadCardCollections();
+      onRefresh();
+    }
+  };
+
+  const handleDeleteSelectedCards = async () => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${selectedCardIds.length} cards? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+      for (const cardId of selectedCardIds) {
+        await onDeleteCard(cardId);
+      }
+      setSelectedCardIds([]);
+      toast.success(`${selectedCardIds.length} cards deleted successfully!`);
+      onRefresh();
+    } catch (error) {
+      toast.error('Failed to delete some cards. Please try again.');
+    }
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -166,7 +202,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
               variant={showBulkManagement ? "secondary" : "outline"}
               className="bg-white/10 border-white/20 text-white hover:bg-white/20"
             >
-              Bulk Management
+              Advanced Bulk Tools
             </Button>
             <Button onClick={onNewCard} className="bg-white text-purple-600 hover:bg-gray-100">
               <Plus className="w-4 h-4 mr-2" />
@@ -472,6 +508,16 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
           ))}
         </div>
       )}
+
+      {/* Floating Bulk Action Toolbar */}
+      <BulkActionToolbar
+        selectedCardIds={selectedCardIds}
+        collections={collections}
+        onAssignToCollection={handleAssignToCollection}
+        onRemoveFromCollection={handleRemoveFromCollection}
+        onClearSelection={() => setSelectedCardIds([])}
+        onDeleteCards={handleDeleteSelectedCards}
+      />
     </div>
   );
 };
