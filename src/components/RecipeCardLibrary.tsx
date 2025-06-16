@@ -9,7 +9,9 @@ import { RecipeCard } from './RecipeCardEditor';
 import { useCollections } from '@/hooks/useCollections';
 import BulkManagement from './BulkManagement';
 import CollectionDetailView from './CollectionDetailView';
-import { Plus, Edit, Eye, Trash2, Download, Search, FileText, FolderOpen } from 'lucide-react';
+import CollectionQuickActions from './CollectionQuickActions';
+import CollectionStats from './CollectionStats';
+import { Plus, Edit, Eye, Trash2, Download, Search, FileText, FolderOpen, Filter } from 'lucide-react';
 
 interface RecipeCardLibraryProps {
   cards: RecipeCard[];
@@ -38,7 +40,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   const [viewingCollection, setViewingCollection] = useState<string | null>(null);
   const [cardCollectionMap, setCardCollectionMap] = useState<Record<string, string[]>>({});
   
-  const { collections, getCollectionCards } = useCollections();
+  const { collections, getCollectionCards, reloadCollections } = useCollections();
 
   useEffect(() => {
     loadCardCollections();
@@ -128,6 +130,11 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
     setViewingCollection(collectionId);
   };
 
+  const handleRefreshAll = () => {
+    reloadCollections();
+    onRefresh();
+  };
+
   // If viewing a collection, show the collection detail view
   if (viewingCollection) {
     const collection = collections.find(c => c.id === viewingCollection);
@@ -146,7 +153,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {/* Header */}
+      {/* Enhanced Header */}
       <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white p-6 rounded-lg mb-6">
         <div className="flex items-center justify-between">
           <div>
@@ -169,6 +176,23 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
         </div>
       </div>
 
+      {/* Collection Quick Actions */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Quick Collection Actions</h2>
+        </div>
+        <CollectionQuickActions onRefresh={handleRefreshAll} />
+      </div>
+
+      {/* Collection Stats */}
+      <div className="mb-6">
+        <CollectionStats 
+          collections={collections}
+          totalCards={cards.length}
+          selectedCollection={selectedCollection}
+        />
+      </div>
+
       {/* Bulk Management Panel */}
       {showBulkManagement && (
         <div className="mb-6">
@@ -181,7 +205,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
         </div>
       )}
 
-      {/* Search and Filters */}
+      {/* Enhanced Search and Filters */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -192,30 +216,46 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
             className="pl-10"
           />
         </div>
-        <Select value={selectedCollection} onValueChange={setSelectedCollection}>
-          <SelectTrigger>
-            <SelectValue placeholder="Filter by collection..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Cards</SelectItem>
-            {collections.map(collection => (
-              <SelectItem key={collection.id} value={collection.id}>
-                {collection.name} ({collection.card_count || 0} cards)
+        <div className="relative">
+          <Filter className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
+          <Select value={selectedCollection} onValueChange={setSelectedCollection}>
+            <SelectTrigger className="pl-10">
+              <SelectValue placeholder="Filter by collection..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">
+                <div className="flex items-center gap-2">
+                  <span>All Cards</span>
+                  <Badge variant="secondary">{cards.length}</Badge>
+                </div>
               </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              {collections.map(collection => (
+                <SelectItem key={collection.id} value={collection.id}>
+                  <div className="flex items-center gap-2">
+                    <span>{collection.name}</span>
+                    <Badge variant="secondary">{collection.card_count || 0}</Badge>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Collections Quick View */}
+      {/* Enhanced Collections Quick View */}
       {collections.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">Collections</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Collections Overview</h3>
+            <Button onClick={handleRefreshAll} variant="outline" size="sm">
+              Refresh
+            </Button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {collections.map(collection => (
-              <Card key={collection.id} className="cursor-pointer hover:shadow-md transition-shadow border border-gray-200">
+              <Card key={collection.id} className="cursor-pointer hover:shadow-md transition-shadow border border-gray-200 group">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <FolderOpen className="w-4 h-4 text-blue-600" />
                       <span className="font-medium text-sm">{collection.name}</span>
@@ -224,14 +264,29 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
                       {collection.card_count || 0}
                     </Badge>
                   </div>
-                  <Button
-                    onClick={() => handleViewCollection(collection.id)}
-                    variant="ghost"
-                    size="sm"
-                    className="w-full mt-2 text-blue-600"
-                  >
-                    View Collection
-                  </Button>
+                  {collection.description && (
+                    <p className="text-xs text-gray-500 mb-2 line-clamp-2">
+                      {collection.description}
+                    </p>
+                  )}
+                  <div className="flex gap-1">
+                    <Button
+                      onClick={() => setSelectedCollection(collection.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-blue-600 text-xs"
+                    >
+                      Filter View
+                    </Button>
+                    <Button
+                      onClick={() => handleViewCollection(collection.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-green-600 text-xs"
+                    >
+                      Manage
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
