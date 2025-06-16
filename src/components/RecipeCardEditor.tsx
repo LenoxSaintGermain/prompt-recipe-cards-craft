@@ -64,23 +64,31 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
       const parsedData = parsedCards[0];
       setFormData(prev => ({
         ...prev,
-        ...parsedData,
+        name: parsedData.name || prev.name,
+        whatItDoes: parsedData.whatItDoes || (parsedData as any).what_it_does || prev.whatItDoes,
+        whoItsFor: parsedData.whoItsFor || (parsedData as any).who_its_for || prev.whoItsFor,
+        difficulty: parsedData.difficulty || prev.difficulty,
+        steps: parsedData.steps || prev.steps,
+        examplePrompts: parsedData.examplePrompts || (parsedData as any).example_prompts || prev.examplePrompts,
+        exampleInAction: parsedData.exampleInAction || (parsedData as any).example_in_action || prev.exampleInAction,
+        promptTemplate: parsedData.promptTemplate || (parsedData as any).prompt_template || prev.promptTemplate,
+        tips: parsedData.tips || prev.tips,
         id: prev.id // Keep the existing ID
       }));
     } else if (parsedCards.length > 1 && onBulkSave) {
       // Multi-card import - use bulk save
       const cards: RecipeCard[] = parsedCards.map((data, index) => ({
         id: '', // Let the database handle ID generation
-        name: data.name || `Untitled Card ${index + 1}`,
-        whatItDoes: data.what_it_does || data.whatItDoes || '',
-        whoItsFor: data.who_its_for || data.whoItsFor || '',
+        name: data.name || (data as any).name || `Untitled Card ${index + 1}`,
+        whatItDoes: data.whatItDoes || (data as any).what_it_does || '',
+        whoItsFor: data.whoItsFor || (data as any).who_its_for || '',
         difficulty: data.difficulty || 'Beginner',
-        steps: data.steps || [''],
-        examplePrompts: data.example_prompts || data.examplePrompts || [{ title: '', prompt: '' }],
-        exampleInAction: data.example_in_action || data.exampleInAction || '',
-        promptTemplate: data.prompt_template || data.promptTemplate || '',
+        steps: data.steps || (data as any).steps || [''],
+        examplePrompts: data.examplePrompts || (data as any).example_prompts || [{ title: '', prompt: '' }],
+        exampleInAction: data.exampleInAction || (data as any).example_in_action || '',
+        promptTemplate: data.promptTemplate || (data as any).prompt_template || '',
         perplexityChatLink: '',
-        tips: data.tips || ['']
+        tips: data.tips || (data as any).tips || ['']
       }));
       
       onBulkSave(cards);

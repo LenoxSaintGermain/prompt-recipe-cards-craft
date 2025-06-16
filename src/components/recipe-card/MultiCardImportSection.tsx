@@ -56,24 +56,29 @@ const MultiCardImportSection: React.FC<MultiCardImportSectionProps> = ({ onImpor
       const cards = parsedData.cards || [parsedData];
       
       const processedCards: DetectedCard[] = cards.map((cardData: any) => {
-        const mockCard: RecipeCard = {
-          id: 'temp',
+        // Normalize the card data to handle both camelCase and snake_case properties
+        const normalizedCardData = {
           name: cardData.name || '',
-          whatItDoes: cardData.what_it_does || '',
-          whoItsFor: cardData.who_its_for || '',
+          whatItDoes: cardData.whatItDoes || cardData.what_it_does || '',
+          whoItsFor: cardData.whoItsFor || cardData.who_its_for || '',
           difficulty: cardData.difficulty || 'Beginner',
           steps: cardData.steps || [],
-          examplePrompts: cardData.example_prompts || [],
+          examplePrompts: cardData.examplePrompts || cardData.example_prompts || [],
           tips: cardData.tips || [],
-          promptTemplate: cardData.prompt_template || '',
-          exampleInAction: cardData.example_in_action || '',
+          promptTemplate: cardData.promptTemplate || cardData.prompt_template || '',
+          exampleInAction: cardData.exampleInAction || cardData.example_in_action || '',
           perplexityChatLink: ''
+        };
+
+        const mockCard: RecipeCard = {
+          id: 'temp',
+          ...normalizedCardData
         };
         
         const suggestions = analyzeCardForCollections(mockCard);
         
         return {
-          data: cardData,
+          data: normalizedCardData,
           suggestions,
           selected: true
         };
@@ -184,7 +189,7 @@ const MultiCardImportSection: React.FC<MultiCardImportSectionProps> = ({ onImpor
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 line-clamp-2">
-                            {card.data.what_it_does}
+                            {card.data.whatItDoes}
                           </p>
                           {card.suggestions.length > 0 && (
                             <div className="flex gap-1 flex-wrap">
