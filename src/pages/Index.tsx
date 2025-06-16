@@ -17,7 +17,7 @@ const Index = () => {
   const [isSlideMode, setIsSlideMode] = useState(false);
   const [previousView, setPreviousView] = useState<View>('library');
   
-  const { cards, loading, error, saveCard, deleteCard, reloadCards } = useRecipeCards();
+  const { cards, loading, error, saveCard, bulkSaveCards, deleteCard, reloadCards } = useRecipeCards();
 
   const handleSaveCard = async (card: RecipeCard) => {
     const success = await saveCard(card);
@@ -25,6 +25,14 @@ const Index = () => {
       setCurrentView('library');
       setCurrentCard(undefined);
       setPreviousView('library');
+    }
+  };
+
+  const handleBulkSaveCards = async (cards: RecipeCard[]) => {
+    const success = await bulkSaveCards(cards);
+    if (success) {
+      // Don't change view for bulk saves, let user continue working
+      // The success/failure messages are handled in the bulkSaveCards function
     }
   };
 
@@ -216,6 +224,7 @@ const Index = () => {
           card={currentCard}
           onSave={handleSaveCard}
           onPreview={handlePreviewFromEditor}
+          onBulkSave={handleBulkSaveCards}
         />
       )}
 
