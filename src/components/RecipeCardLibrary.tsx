@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import BulkActionToolbar from './BulkActionToolbar';
 import CollectionDetailView from './CollectionDetailView';
 import CollectionQuickActions from './CollectionQuickActions';
 import CollectionStats from './CollectionStats';
-import { Plus, Edit, Eye, Trash2, Download, Search, FileText, FolderOpen, Filter } from 'lucide-react';
+import { Plus, Edit, Eye, Trash2, Download, Search, FileText, FolderOpen, Filter, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface RecipeCardLibraryProps {
@@ -62,7 +62,6 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
       collectionMap[card.id] = cardCollections.map(c => c.name);
     }
     
-    // Load actual collection memberships from database
     for (const collection of collections) {
       const collectionCards = await getCollectionCards(collection.id);
       collectionCards.forEach(card => {
@@ -81,7 +80,6 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   const filterCards = async () => {
     let filtered = cards;
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(card =>
         card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -90,7 +88,6 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
       );
     }
 
-    // Filter by collection
     if (selectedCollection !== 'all') {
       const collection = collections.find(c => c.id === selectedCollection);
       if (collection) {
@@ -122,7 +119,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   };
 
   const handleDeleteSelectedCards = async () => {
-    const confirmed = window.confirm(`Are you sure you want to delete ${selectedCardIds.length} cards? This action cannot be undone.`);
+    const confirmed = window.confirm(`Are you sure you want to delete ${selectedCardIds.length} patterns? This action cannot be undone.`);
     if (!confirmed) return;
 
     try {
@@ -130,19 +127,19 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
         await onDeleteCard(cardId);
       }
       setSelectedCardIds([]);
-      toast.success(`${selectedCardIds.length} cards deleted successfully!`);
+      toast.success(`${selectedCardIds.length} patterns deleted successfully!`);
       onRefresh();
     } catch (error) {
-      toast.error('Failed to delete some cards. Please try again.');
+      toast.error('Failed to delete some patterns. Please try again.');
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyDot = (difficulty: string) => {
     switch (difficulty) {
-      case 'Beginner': return 'bg-green-100 text-green-800 border-green-300';
-      case 'Intermediate': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'Advanced': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'Beginner': return 'bg-difficulty-beginner';
+      case 'Intermediate': return 'bg-difficulty-intermediate';
+      case 'Advanced': return 'bg-difficulty-advanced';
+      default: return 'bg-muted-foreground';
     }
   };
 
@@ -171,7 +168,6 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
     onRefresh();
   };
 
-  // If viewing a collection, show the collection detail view
   if (viewingCollection) {
     const collection = collections.find(c => c.id === viewingCollection);
     if (collection) {
@@ -188,336 +184,351 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      {/* Enhanced Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white p-6 rounded-lg mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Recipe Card Library</h1>
-            <p className="text-purple-100">Manage your Perplexity Enterprise prompt recipes</p>
+    <div className="min-h-screen bg-background">
+      {/* Clean Header */}
+      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="flex items-start justify-between">
+            <div className="animate-fade-up">
+              <h1 className="text-4xl font-semibold text-foreground tracking-tight">
+                Pattern Library
+              </h1>
+              <p className="text-lg text-muted-foreground mt-2">
+                Discover how experts leverage AI through proven prompt patterns
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => setShowBulkManagement(!showBulkManagement)}
+                variant="outline"
+                className="rounded-xl press-effect"
+              >
+                Advanced Tools
+              </Button>
+              <Button 
+                onClick={onNewCard} 
+                className="rounded-xl bg-foreground text-background hover:bg-foreground/90 press-effect"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Pattern
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => setShowBulkManagement(!showBulkManagement)}
-              variant={showBulkManagement ? "secondary" : "outline"}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              Advanced Bulk Tools
-            </Button>
-            <Button onClick={onNewCard} className="bg-white text-purple-600 hover:bg-gray-100">
-              <Plus className="w-4 h-4 mr-2" />
-              New Recipe Card
-            </Button>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        {/* Quick Actions */}
+        <section className="animate-fade-up" style={{ animationDelay: '0.1s' }}>
+          <CollectionQuickActions onRefresh={handleRefreshAll} />
+        </section>
+
+        {/* Stats */}
+        <section className="animate-fade-up" style={{ animationDelay: '0.15s' }}>
+          <CollectionStats 
+            collections={collections}
+            totalCards={cards.length}
+            selectedCollection={selectedCollection}
+          />
+        </section>
+
+        {/* Bulk Management */}
+        {showBulkManagement && (
+          <section className="animate-scale-in">
+            <BulkManagement
+              cards={cards}
+              selectedCardIds={selectedCardIds}
+              onSelectionChange={setSelectedCardIds}
+              onRefresh={onRefresh}
+            />
+          </section>
+        )}
+
+        {/* Search and Filters */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search patterns..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-12 pl-11 bg-secondary/50 border-0 rounded-xl focus:bg-background focus:ring-2 focus:ring-accent/20 transition-all duration-200"
+            />
           </div>
-        </div>
-      </div>
-
-      {/* Collection Quick Actions */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Quick Collection Actions</h2>
-        </div>
-        <CollectionQuickActions onRefresh={handleRefreshAll} />
-      </div>
-
-      {/* Collection Stats */}
-      <div className="mb-6">
-        <CollectionStats 
-          collections={collections}
-          totalCards={cards.length}
-          selectedCollection={selectedCollection}
-        />
-      </div>
-
-      {/* Bulk Management Panel */}
-      {showBulkManagement && (
-        <div className="mb-6">
-          <BulkManagement
-            cards={cards}
-            selectedCardIds={selectedCardIds}
-            onSelectionChange={setSelectedCardIds}
-            onRefresh={onRefresh}
-          />
-        </div>
-      )}
-
-      {/* Enhanced Search and Filters */}
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search recipe cards..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <div className="relative">
-          <Filter className="absolute left-3 top-3 h-4 w-4 text-gray-400 z-10" />
-          <Select value={selectedCollection} onValueChange={setSelectedCollection}>
-            <SelectTrigger className="pl-10">
-              <SelectValue placeholder="Filter by collection..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                <div className="flex items-center gap-2">
-                  <span>All Cards</span>
-                  <Badge variant="secondary">{cards.length}</Badge>
-                </div>
-              </SelectItem>
-              {collections.map(collection => (
-                <SelectItem key={collection.id} value={collection.id}>
-                  <div className="flex items-center gap-2">
-                    <span>{collection.name}</span>
-                    <Badge variant="secondary">{collection.card_count || 0}</Badge>
-                  </div>
+          <div className="relative">
+            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+            <Select value={selectedCollection} onValueChange={setSelectedCollection}>
+              <SelectTrigger className="h-12 pl-11 bg-secondary/50 border-0 rounded-xl focus:ring-2 focus:ring-accent/20">
+                <SelectValue placeholder="Filter by collection..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  <span className="flex items-center gap-2">
+                    All Patterns
+                    <Badge variant="secondary" className="rounded-full text-xs">{cards.length}</Badge>
+                  </span>
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Enhanced Collections Quick View */}
-      {collections.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-semibold">Collections Overview</h3>
-            <Button onClick={handleRefreshAll} variant="outline" size="sm">
-              Refresh
-            </Button>
+                {collections.map(collection => (
+                  <SelectItem key={collection.id} value={collection.id}>
+                    <span className="flex items-center gap-2">
+                      {collection.name}
+                      <Badge variant="secondary" className="rounded-full text-xs">{collection.card_count || 0}</Badge>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {collections.map(collection => (
-              <Card key={collection.id} className="cursor-pointer hover:shadow-md transition-shadow border border-gray-200 group">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <FolderOpen className="w-4 h-4 text-blue-600" />
-                      <span className="font-medium text-sm">{collection.name}</span>
+        </section>
+
+        {/* Collections Overview */}
+        {collections.length > 0 && (
+          <section className="animate-fade-up" style={{ animationDelay: '0.25s' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-foreground">Collections</h2>
+              <Button onClick={handleRefreshAll} variant="ghost" size="sm" className="rounded-xl press-effect">
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {collections.map(collection => (
+                <Card 
+                  key={collection.id} 
+                  className="group border border-border rounded-2xl hover-lift cursor-pointer bg-card"
+                >
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <FolderOpen className="w-4 h-4 text-accent" />
+                        <span className="font-medium text-foreground">{collection.name}</span>
+                      </div>
+                      <Badge variant="secondary" className="rounded-full text-xs">
+                        {collection.card_count || 0}
+                      </Badge>
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {collection.card_count || 0}
-                    </Badge>
+                    {collection.description && (
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {collection.description}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => setSelectedCollection(collection.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 rounded-xl text-accent hover:bg-accent/10 press-effect"
+                      >
+                        Filter
+                      </Button>
+                      <Button
+                        onClick={() => handleViewCollection(collection.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 rounded-xl press-effect"
+                      >
+                        Manage
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Stats Grid */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+          <Card className="border border-border rounded-2xl">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-accent" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total</p>
+                  <p className="text-2xl font-semibold text-foreground">{cards.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border border-border rounded-2xl">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-difficulty-beginner/10 rounded-xl flex items-center justify-center">
+                  <span className="w-3 h-3 rounded-full bg-difficulty-beginner" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Beginner</p>
+                  <p className="text-2xl font-semibold text-foreground">{cards.filter(c => c.difficulty === 'Beginner').length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border border-border rounded-2xl">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-difficulty-intermediate/10 rounded-xl flex items-center justify-center">
+                  <span className="w-3 h-3 rounded-full bg-difficulty-intermediate" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Intermediate</p>
+                  <p className="text-2xl font-semibold text-foreground">{cards.filter(c => c.difficulty === 'Intermediate').length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border border-border rounded-2xl">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-difficulty-advanced/10 rounded-xl flex items-center justify-center">
+                  <span className="w-3 h-3 rounded-full bg-difficulty-advanced" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Advanced</p>
+                  <p className="text-2xl font-semibold text-foreground">{cards.filter(c => c.difficulty === 'Advanced').length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Bulk Selection */}
+        {filteredCards.length > 0 && (
+          <section className="flex items-center gap-4 p-4 bg-secondary/30 rounded-2xl animate-fade-up" style={{ animationDelay: '0.35s' }}>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="select-all"
+                checked={selectedCardIds.length === filteredCards.length && filteredCards.length > 0}
+                onCheckedChange={handleSelectAll}
+              />
+              <label htmlFor="select-all" className="text-sm font-medium text-foreground cursor-pointer">
+                Select All ({filteredCards.length})
+              </label>
+            </div>
+            
+            {selectedCardIds.length > 0 && (
+              <Badge variant="secondary" className="rounded-full">
+                {selectedCardIds.length} selected
+              </Badge>
+            )}
+          </section>
+        )}
+
+        {/* Cards Grid */}
+        {filteredCards.length === 0 ? (
+          <Card className="border-2 border-dashed border-border rounded-2xl animate-fade-up">
+            <CardContent className="p-16 text-center">
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {cards.length === 0 ? 'No patterns yet' : 'No patterns match your search'}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {cards.length === 0 
+                  ? 'Create your first pattern to get started.'
+                  : 'Try adjusting your search terms or collection filter.'
+                }
+              </p>
+              {cards.length === 0 && (
+                <Button onClick={onNewCard} className="rounded-xl press-effect">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create First Pattern
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+            {filteredCards.map((card, index) => (
+              <Card 
+                key={card.id} 
+                className="group border border-border rounded-2xl hover-lift bg-card overflow-hidden"
+                style={{ animationDelay: `${0.05 * index}s` }}
+              >
+                <CardContent className="p-0">
+                  <div className="p-6">
+                    <div className="flex items-start gap-3 mb-3">
+                      <Checkbox
+                        checked={selectedCardIds.includes(card.id)}
+                        onCheckedChange={(checked) => handleSelectCard(card.id, checked as boolean)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-accent transition-colors duration-200">
+                            {card.name}
+                          </h3>
+                          <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 ${getDifficultyDot(card.difficulty)}`} />
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {card.whatItDoes}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Collection tags */}
+                    {cardCollectionMap[card.id]?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-3 ml-7">
+                        {cardCollectionMap[card.id].slice(0, 2).map((collName, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs rounded-full">
+                            {collName}
+                          </Badge>
+                        ))}
+                        {cardCollectionMap[card.id].length > 2 && (
+                          <Badge variant="secondary" className="text-xs rounded-full">
+                            +{cardCollectionMap[card.id].length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  {collection.description && (
-                    <p className="text-xs text-gray-500 mb-2 line-clamp-2">
-                      {collection.description}
-                    </p>
-                  )}
-                  <div className="flex gap-1">
-                    <Button
-                      onClick={() => setSelectedCollection(collection.id)}
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 text-blue-600 text-xs"
-                    >
-                      Filter View
-                    </Button>
-                    <Button
-                      onClick={() => handleViewCollection(collection.id)}
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 text-green-600 text-xs"
-                    >
-                      Manage
-                    </Button>
+                  
+                  {/* Footer */}
+                  <div className="px-6 py-4 border-t border-border bg-secondary/20 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {card.whoItsFor}
+                    </span>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <Button
+                        onClick={() => onViewCard(card)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 rounded-lg press-effect"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => onEditCard(card)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 rounded-lg press-effect"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => onExportCard(card, 'pdf')}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 rounded-lg press-effect"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={() => onDeleteCard(card.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 rounded-lg text-destructive hover:text-destructive press-effect"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <FileText className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Cards</p>
-                <p className="text-2xl font-bold">{cards.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-green-600 font-bold">B</span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Beginner</p>
-                <p className="text-2xl font-bold">{cards.filter(c => c.difficulty === 'Beginner').length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                <span className="text-yellow-600 font-bold">I</span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Intermediate</p>
-                <p className="text-2xl font-bold">{cards.filter(c => c.difficulty === 'Intermediate').length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center">
-              <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-red-600 font-bold">A</span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Advanced</p>
-                <p className="text-2xl font-bold">{cards.filter(c => c.difficulty === 'Advanced').length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Bulk Selection Controls */}
-      {filteredCards.length > 0 && (
-        <div className="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="select-all"
-              checked={selectedCardIds.length === filteredCards.length}
-              onCheckedChange={handleSelectAll}
-            />
-            <label htmlFor="select-all" className="text-sm font-medium">
-              Select All ({filteredCards.length})
-            </label>
-          </div>
-          
-          {selectedCardIds.length > 0 && (
-            <Badge variant="secondary">
-              {selectedCardIds.length} selected
-            </Badge>
-          )}
-        </div>
-      )}
-
-      {/* Cards Grid */}
-      {filteredCards.length === 0 ? (
-        <Card className="border-2 border-dashed border-gray-300">
-          <CardContent className="p-12 text-center">
-            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {cards.length === 0 ? 'No recipe cards yet' : 'No cards match your search'}
-            </h3>
-            <p className="text-gray-500 mb-4">
-              {cards.length === 0 
-                ? 'Create your first recipe card to get started.'
-                : 'Try adjusting your search terms or collection filter.'
-              }
-            </p>
-            {cards.length === 0 && (
-              <Button onClick={onNewCard}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create First Card
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCards.map((card) => (
-            <Card key={card.id} className="border border-gray-200 hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1">
-                    <Checkbox
-                      checked={selectedCardIds.includes(card.id)}
-                      onCheckedChange={(checked) => handleSelectCard(card.id, checked as boolean)}
-                    />
-                    <CardTitle className="text-lg font-semibold line-clamp-2 flex-1">
-                      {card.name}
-                    </CardTitle>
-                  </div>
-                  <Badge className={`${getDifficultyColor(card.difficulty)} text-xs ml-2 flex-shrink-0`}>
-                    {card.difficulty}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-gray-600 line-clamp-3">
-                  {card.whatItDoes}
-                </p>
-                <p className="text-xs text-gray-500">
-                  <strong>For:</strong> {card.whoItsFor}
-                </p>
-
-                {/* Show collection membership */}
-                {cardCollectionMap[card.id] && cardCollectionMap[card.id].length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {cardCollectionMap[card.id].map(collectionName => (
-                      <Badge key={collectionName} variant="outline" className="text-xs">
-                        {collectionName}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <Button onClick={() => onViewCard(card)} variant="outline" size="sm">
-                    <Eye className="w-3 h-3 mr-1" />
-                    View
-                  </Button>
-                  <Button onClick={() => onEditCard(card)} variant="outline" size="sm">
-                    <Edit className="w-3 h-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => onExportCard(card, 'pdf')}
-                    variant="outline"
-                    size="sm"
-                    className="text-blue-600"
-                  >
-                    <Download className="w-3 h-3 mr-1" />
-                    PDF
-                  </Button>
-                  <Button
-                    onClick={() => onExportCard(card, 'markdown')}
-                    variant="outline"
-                    size="sm"
-                    className="text-green-600"
-                  >
-                    <FileText className="w-3 h-3 mr-1" />
-                    MD
-                  </Button>
-                  <Button
-                    onClick={() => onDeleteCard(card.id)}
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Floating Bulk Action Toolbar */}
-      <BulkActionToolbar
-        selectedCardIds={selectedCardIds}
-        collections={collections}
-        onAssignToCollection={handleAssignToCollection}
-        onRemoveFromCollection={handleRemoveFromCollection}
-        onClearSelection={() => setSelectedCardIds([])}
-        onDeleteCards={handleDeleteSelectedCards}
-      />
+          </section>
+        )}
+      </main>
     </div>
   );
 };

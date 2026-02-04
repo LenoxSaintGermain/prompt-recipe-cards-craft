@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { RecipeCard } from './RecipeCardEditor';
@@ -17,8 +16,8 @@ interface RecipeCardPreviewProps {
 const RecipeCardPreview: React.FC<RecipeCardPreviewProps> = ({ card, isSlideMode = false }) => {
   if (isSlideMode) {
     return (
-      <div id="recipe-card-preview" className="w-full max-w-7xl mx-auto p-6 bg-white">
-        <Card className="border-2 border-purple-200 shadow-xl">
+      <div id="recipe-card-preview" className="w-full max-w-7xl mx-auto p-6 bg-background">
+        <Card className="border border-border rounded-2xl shadow-glass overflow-hidden">
           <RecipeCardHeader name={card.name} difficulty={card.difficulty} isSlideMode />
           <RearrangeableSlideLayout card={card} />
           <RecipeCardFooter isSlideMode />
@@ -28,8 +27,8 @@ const RecipeCardPreview: React.FC<RecipeCardPreviewProps> = ({ card, isSlideMode
   }
 
   return (
-    <div id="recipe-card-preview" className="max-w-4xl mx-auto p-8 bg-white">
-      <Card className="border-2 border-purple-200 shadow-xl">
+    <div id="recipe-card-preview" className="max-w-4xl mx-auto p-8 bg-background">
+      <Card className="border border-border rounded-2xl shadow-glass overflow-hidden">
         <RecipeCardHeader name={card.name} difficulty={card.difficulty} />
         <DocumentLayout card={card} />
         <RecipeCardFooter />

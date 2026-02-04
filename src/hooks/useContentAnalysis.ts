@@ -1,4 +1,3 @@
-
 import { RecipeCard } from '@/components/RecipeCardEditor';
 
 export interface CollectionSuggestion {
@@ -12,27 +11,25 @@ export const useContentAnalysis = () => {
     const suggestions: CollectionSuggestion[] = [];
     const content = `${card.name} ${card.whatItDoes} ${card.whoItsFor} ${card.steps?.join(' ') || ''} ${card.tips?.join(' ') || ''} ${card.promptTemplate || ''}`.toLowerCase();
     
-    // Enhanced Perplexity Training Detection
-    const perplexityKeywords = [
-      'perplexity', 'enterprise', 'research', 'search', 'citations', 'sources',
-      'fact-checking', 'academic', 'business intelligence', 'ai-powered search',
+    // Research & Discovery Detection
+    const researchKeywords = [
+      'research', 'search', 'citations', 'sources', 'fact-checking', 'academic',
       'web search', 'real-time', 'current events', 'news analysis', 'market scan',
-      'innovation market scan', 'ophthalmology', 'diabetic retinopathy', 'digital health',
-      'strategy team', 'competitive intelligence', 'market research', 'focus mode',
-      'deep research', 'hallucination', 'source verification', 'responsible ai'
+      'innovation', 'deep research', 'source verification', 'discovery',
+      'investigate', 'analyze', 'explore', 'find', 'gather'
     ];
     
-    const perplexityMatches = perplexityKeywords.filter(keyword => 
+    const researchMatches = researchKeywords.filter(keyword => 
       content.includes(keyword)
     );
     
-    if (perplexityMatches.length > 0) {
+    if (researchMatches.length > 0) {
       suggestions.push({
-        collectionName: 'Perplexity Training',
-        confidence: Math.min(0.95, perplexityMatches.length * 0.15 + 0.4),
+        collectionName: 'Research & Discovery',
+        confidence: Math.min(0.95, researchMatches.length * 0.15 + 0.4),
         reasons: [
-          `Found ${perplexityMatches.length} Perplexity-related keywords`,
-          `Keywords: ${perplexityMatches.slice(0, 4).join(', ')}`
+          `Found ${researchMatches.length} research-related keywords`,
+          `Keywords: ${researchMatches.slice(0, 4).join(', ')}`
         ]
       });
     }
@@ -41,7 +38,7 @@ export const useContentAnalysis = () => {
     const bizdevKeywords = [
       'outreach', 'email', 'sales', 'client', 'business development',
       'linkedin', 'networking', 'lead generation', 'prospecting', 'partnerships',
-      'strategic alliances', 'stakeholder', 'competitive analysis'
+      'strategic alliances', 'stakeholder', 'competitive analysis', 'enterprise'
     ];
     
     const bizdevMatches = bizdevKeywords.filter(keyword => 
@@ -62,7 +59,8 @@ export const useContentAnalysis = () => {
     // Content Creation Detection
     const contentKeywords = [
       'writing', 'content', 'blog', 'article', 'social media',
-      'marketing', 'copywriting', 'creative', 'storytelling', 'communication'
+      'marketing', 'copywriting', 'creative', 'storytelling', 'communication',
+      'draft', 'compose', 'generate', 'create'
     ];
     
     const contentMatches = contentKeywords.filter(keyword => 
@@ -80,24 +78,68 @@ export const useContentAnalysis = () => {
       });
     }
 
-    // Market Research Detection
-    const marketResearchKeywords = [
-      'market scan', 'competitive analysis', 'industry analysis', 'trend analysis',
-      'market intelligence', 'research methodology', 'data analysis', 'insights',
-      'pharmaceutical', 'healthcare', 'innovation', 'strategy team'
+    // Data Analysis Detection
+    const dataKeywords = [
+      'data', 'analysis', 'analytics', 'metrics', 'insights',
+      'visualization', 'statistics', 'trends', 'patterns', 'reports',
+      'dashboard', 'kpi', 'measure', 'track'
     ];
     
-    const marketResearchMatches = marketResearchKeywords.filter(keyword => 
+    const dataMatches = dataKeywords.filter(keyword => 
       content.includes(keyword)
     );
     
-    if (marketResearchMatches.length > 0) {
+    if (dataMatches.length > 0) {
       suggestions.push({
-        collectionName: 'Market Research',
-        confidence: Math.min(0.85, marketResearchMatches.length * 0.12 + 0.3),
+        collectionName: 'Data Analysis',
+        confidence: Math.min(0.85, dataMatches.length * 0.12 + 0.3),
         reasons: [
-          `Found ${marketResearchMatches.length} market research keywords`,
-          `Keywords: ${marketResearchMatches.slice(0, 3).join(', ')}`
+          `Found ${dataMatches.length} data analysis keywords`,
+          `Keywords: ${dataMatches.slice(0, 3).join(', ')}`
+        ]
+      });
+    }
+
+    // Code Generation Detection
+    const codeKeywords = [
+      'code', 'programming', 'developer', 'software', 'api',
+      'function', 'script', 'automation', 'debug', 'refactor',
+      'typescript', 'javascript', 'python', 'sql'
+    ];
+    
+    const codeMatches = codeKeywords.filter(keyword => 
+      content.includes(keyword)
+    );
+    
+    if (codeMatches.length > 0) {
+      suggestions.push({
+        collectionName: 'Code Generation',
+        confidence: Math.min(0.9, codeMatches.length * 0.15 + 0.35),
+        reasons: [
+          `Found ${codeMatches.length} coding-related keywords`,
+          `Keywords: ${codeMatches.slice(0, 3).join(', ')}`
+        ]
+      });
+    }
+
+    // Learning & Education Detection
+    const learningKeywords = [
+      'learn', 'teach', 'explain', 'understand', 'tutorial',
+      'guide', 'course', 'training', 'education', 'lesson',
+      'concept', 'principle', 'methodology'
+    ];
+    
+    const learningMatches = learningKeywords.filter(keyword => 
+      content.includes(keyword)
+    );
+    
+    if (learningMatches.length > 0) {
+      suggestions.push({
+        collectionName: 'Learning & Education',
+        confidence: Math.min(0.75, learningMatches.length * 0.12 + 0.25),
+        reasons: [
+          `Found ${learningMatches.length} learning-related keywords`,
+          `Keywords: ${learningMatches.slice(0, 3).join(', ')}`
         ]
       });
     }

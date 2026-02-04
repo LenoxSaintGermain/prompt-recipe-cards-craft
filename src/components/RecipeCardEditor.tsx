@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Save, Eye } from 'lucide-react';
+import { Save, Eye, Sparkles } from 'lucide-react';
 import BasicInfoSection from '@/components/recipe-card/BasicInfoSection';
 import StepsSection from '@/components/recipe-card/StepsSection';
 import ExamplePromptsSection from '@/components/recipe-card/ExamplePromptsSection';
@@ -53,6 +53,7 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
       tips: ['']
     }
   );
+  const [showCopilot, setShowCopilot] = useState(false);
 
   const updateField = (field: keyof RecipeCard, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -60,7 +61,6 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
 
   const handleSmartImport = (parsedCards: Partial<RecipeCard>[]) => {
     if (parsedCards.length === 1) {
-      // Single card import - update current form
       const parsedData = parsedCards[0];
       setFormData(prev => ({
         ...prev,
@@ -73,13 +73,12 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
         exampleInAction: parsedData.exampleInAction || (parsedData as any).example_in_action || prev.exampleInAction,
         promptTemplate: parsedData.promptTemplate || (parsedData as any).prompt_template || prev.promptTemplate,
         tips: parsedData.tips || prev.tips,
-        id: prev.id // Keep the existing ID
+        id: prev.id
       }));
     } else if (parsedCards.length > 1 && onBulkSave) {
-      // Multi-card import - use bulk save
       const cards: RecipeCard[] = parsedCards.map((data, index) => ({
-        id: '', // Let the database handle ID generation
-        name: data.name || (data as any).name || `Untitled Card ${index + 1}`,
+        id: '',
+        name: data.name || (data as any).name || `Untitled Pattern ${index + 1}`,
         whatItDoes: data.whatItDoes || (data as any).what_it_does || '',
         whoItsFor: data.whoItsFor || (data as any).who_its_for || '',
         difficulty: data.difficulty || 'Beginner',
@@ -134,9 +133,8 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Main Editor */}
-      <div className="flex-1 max-w-4xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto p-6 space-y-6 animate-fade-up">
         {!card && (
           <>
             <APIKeyStatus />
@@ -144,24 +142,46 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
           </>
         )}
         
-        <Card className="border-2 border-purple-200">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
-            <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              {card ? 'Edit Recipe Card' : 'Create New Recipe Card'}
-              <div className="flex gap-2 ml-auto">
-                <Button onClick={handlePreview} variant="outline" size="sm">
+        <Card className="border border-border rounded-2xl shadow-subtle overflow-hidden">
+          <CardHeader className="bg-secondary/30 border-b border-border px-8 py-6">
+            <CardTitle className="flex items-center justify-between">
+              <span className="text-xl font-semibold text-foreground">
+                {card ? 'Edit Pattern' : 'Create New Pattern'}
+              </span>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setShowCopilot(!showCopilot)} 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-xl press-effect"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  AI Copilot
+                </Button>
+                <Button 
+                  onClick={handlePreview} 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-xl press-effect"
+                >
                   <Eye className="w-4 h-4 mr-2" />
                   Preview
                 </Button>
-                <Button onClick={handleSave} size="sm">
+                <Button 
+                  onClick={handleSave} 
+                  size="sm"
+                  className="rounded-xl bg-foreground text-background hover:bg-foreground/90 press-effect"
+                >
                   <Save className="w-4 h-4 mr-2" />
                   Save
                 </Button>
               </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-8 space-y-8">
             <BasicInfoSection formData={formData} updateField={updateField} />
+            
+            <div className="h-px bg-border" />
             
             <StepsSection
               steps={formData.steps}
@@ -170,6 +190,8 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
               removeArrayField={removeArrayField}
             />
 
+            <div className="h-px bg-border" />
+
             <ExamplePromptsSection
               examplePrompts={formData.examplePrompts}
               updateExamplePrompt={updateExamplePrompt}
@@ -177,7 +199,11 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
               removeExamplePrompt={removeExamplePrompt}
             />
 
+            <div className="h-px bg-border" />
+
             <TemplateSection formData={formData} updateField={updateField} />
+
+            <div className="h-px bg-border" />
 
             <TipsSection
               tips={formData.tips}
@@ -189,11 +215,15 @@ const RecipeCardEditor: React.FC<RecipeCardEditorProps> = ({
         </Card>
       </div>
 
-      {/* AI Co-pilot Panel */}
-      <AICopilotPanel
-        formData={formData}
-        onSuggestionApply={updateField}
-      />
+      {/* Floating AI Copilot Panel */}
+      {showCopilot && (
+        <div className="fixed right-6 bottom-6 z-50 animate-slide-in-bottom">
+          <AICopilotPanel
+            formData={formData}
+            onSuggestionApply={updateField}
+          />
+        </div>
+      )}
     </div>
   );
 };
