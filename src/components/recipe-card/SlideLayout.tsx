@@ -1,96 +1,108 @@
-
 import React from 'react';
 import { CardContent } from '@/components/ui/card';
-import RecipeCardSection from './RecipeCardSection';
 import { RecipeCard } from '../RecipeCardEditor';
 
 interface SlideLayoutProps {
   card: RecipeCard;
 }
 
+interface SlideSectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const SlideSection: React.FC<SlideSectionProps> = ({ title, children }) => (
+  <div className="bg-secondary/30 rounded-xl p-4 space-y-2">
+    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      {title}
+    </h3>
+    {children}
+  </div>
+);
+
 const SlideLayout: React.FC<SlideLayoutProps> = ({ card }) => {
   return (
-    <CardContent className="p-4">
+    <CardContent className="p-6">
       <div className="grid grid-cols-2 gap-6">
         {/* Left Column - Conceptual Information */}
         <div className="space-y-4">
           {/* What it does */}
-          <RecipeCardSection title="What it does:" bgColor="bg-blue-50" borderColor="border-blue-200" isSlideMode>
-            <p className="text-sm text-gray-700 leading-relaxed">{card.whatItDoes}</p>
-          </RecipeCardSection>
+          <SlideSection title="What it does">
+            <p className="text-sm text-foreground leading-relaxed">{card.whatItDoes}</p>
+          </SlideSection>
 
           {/* Who it's for */}
-          <RecipeCardSection title="Who it's for:" bgColor="bg-green-50" borderColor="border-green-200" isSlideMode>
-            <p className="text-sm text-gray-700 leading-relaxed">{card.whoItsFor}</p>
-          </RecipeCardSection>
+          <SlideSection title="Who it's for">
+            <p className="text-sm text-foreground leading-relaxed">{card.whoItsFor}</p>
+          </SlideSection>
 
           {/* Tips */}
           {card.tips.some(tip => tip.trim()) && (
-            <RecipeCardSection title="Tips for Best Results:" bgColor="bg-yellow-50" borderColor="border-yellow-200" isSlideMode>
-              <ul className="space-y-1">
+            <SlideSection title="Tips">
+              <ul className="space-y-1.5">
                 {card.tips.filter(tip => tip.trim()).map((tip, index) => (
                   <li key={index} className="flex gap-2 text-sm">
-                    <span className="flex-shrink-0 w-3 h-3 bg-green-500 rounded-full mt-1"></span>
-                    <p className="text-gray-700 leading-relaxed">{tip}</p>
+                    <span className="flex-shrink-0 w-1.5 h-1.5 bg-difficulty-beginner rounded-full mt-1.5" />
+                    <p className="text-foreground leading-relaxed">{tip}</p>
                   </li>
                 ))}
               </ul>
-            </RecipeCardSection>
+            </SlideSection>
           )}
         </div>
 
         {/* Right Column - Implementation & Examples */}
         <div className="space-y-4">
           {/* Steps */}
-          <RecipeCardSection title="How it's done (Steps):" bgColor="bg-purple-50" borderColor="border-purple-200" isSlideMode>
+          <SlideSection title="Steps">
             <ol className="space-y-2">
               {card.steps.filter(step => step.trim()).map((step, index) => (
                 <li key={index} className="flex gap-2">
-                  <span className="flex-shrink-0 w-5 h-5 bg-purple-100 text-purple-800 rounded-full flex items-center justify-center text-xs font-bold">
+                  <span className="flex-shrink-0 w-5 h-5 bg-accent text-accent-foreground rounded-full flex items-center justify-center text-xs font-semibold">
                     {index + 1}
                   </span>
-                  <p className="text-sm text-gray-700 leading-relaxed flex-1">{step}</p>
+                  <p className="text-sm text-foreground leading-relaxed flex-1">{step}</p>
                 </li>
               ))}
             </ol>
-          </RecipeCardSection>
+          </SlideSection>
 
           {/* Example Prompts */}
           {card.examplePrompts.some(p => p.title || p.prompt) && (
-            <RecipeCardSection title="Example Prompt(s):" bgColor="bg-gray-50" borderColor="border-gray-200" isSlideMode>
+            <SlideSection title="Example Prompts">
               <div className="space-y-3">
                 {card.examplePrompts.filter(p => p.title || p.prompt).map((example, index) => (
-                  <div key={index} className="bg-white rounded p-3 border border-gray-200">
+                  <div key={index} className="bg-background rounded-lg p-3 border border-border">
                     {example.title && (
-                      <h4 className="font-semibold text-gray-800 mb-1 text-sm">
-                        Example {index + 1}: {example.title}
+                      <h4 className="font-medium text-foreground mb-1 text-sm">
+                        {example.title}
                       </h4>
                     )}
                     {example.prompt && (
-                      <pre className="text-xs text-gray-700 whitespace-pre-wrap bg-gray-50 p-2 rounded border font-mono">
+                      <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono">
                         {example.prompt}
                       </pre>
                     )}
                   </div>
                 ))}
               </div>
-            </RecipeCardSection>
+            </SlideSection>
           )}
 
           {/* Example in Action */}
           {card.exampleInAction && (
-            <RecipeCardSection title="Example in Action:" bgColor="bg-indigo-50" borderColor="border-indigo-200" isSlideMode>
-              <p className="text-sm text-gray-700 leading-relaxed">{card.exampleInAction}</p>
-            </RecipeCardSection>
+            <SlideSection title="Example in Action">
+              <p className="text-sm text-foreground leading-relaxed">{card.exampleInAction}</p>
+            </SlideSection>
           )}
 
           {/* Prompt Template */}
           {card.promptTemplate && (
-            <RecipeCardSection title="Prompt Template:" bgColor="bg-orange-50" borderColor="border-orange-200" isSlideMode>
-              <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono bg-white p-2 rounded border">
+            <SlideSection title="Prompt Template">
+              <pre className="text-xs text-foreground whitespace-pre-wrap font-mono bg-background p-2 rounded-lg border border-border">
                 {card.promptTemplate}
               </pre>
-            </RecipeCardSection>
+            </SlideSection>
           )}
         </div>
       </div>

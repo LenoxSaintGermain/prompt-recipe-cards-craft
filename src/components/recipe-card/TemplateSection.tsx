@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,42 +11,48 @@ interface TemplateSectionProps {
 
 const TemplateSection: React.FC<TemplateSectionProps> = ({ formData, updateField }) => {
   return (
-    <>
-      <div>
-        <Label htmlFor="exampleInAction">Example in Action</Label>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="exampleInAction" className="text-sm font-medium text-foreground">
+          Example in Action
+        </Label>
         <Textarea
           id="exampleInAction"
           value={formData.exampleInAction}
           onChange={(e) => updateField('exampleInAction', e.target.value)}
           placeholder="Brief description of what the screenshot/link shows..."
-          className="mt-1"
+          className="min-h-[80px] px-4 py-3 bg-secondary/50 border-0 rounded-xl resize-none focus:bg-background focus:ring-2 focus:ring-accent/20 transition-all duration-200"
           rows={2}
         />
       </div>
 
-      <div>
-        <Label htmlFor="promptTemplate">Prompt Template</Label>
+      <div className="space-y-2">
+        <Label htmlFor="promptTemplate" className="text-sm font-medium text-foreground">
+          Prompt Template
+        </Label>
         <Textarea
           id="promptTemplate"
           value={formData.promptTemplate}
           onChange={(e) => updateField('promptTemplate', e.target.value)}
           placeholder="Provide a copy-paste ready template with clear placeholders..."
-          className="mt-1"
+          className="min-h-[160px] px-4 py-3 bg-secondary/50 border-0 rounded-xl resize-none font-mono text-sm focus:bg-background focus:ring-2 focus:ring-accent/20 transition-all duration-200"
           rows={6}
         />
       </div>
 
-      <div>
-        <Label htmlFor="perplexityChatLink">Perplexity Chat Link</Label>
+      <div className="space-y-2">
+        <Label htmlFor="perplexityChatLink" className="text-sm font-medium text-foreground">
+          Live Demo Link
+        </Label>
         <Input
           id="perplexityChatLink"
           value={formData.perplexityChatLink}
           onChange={(e) => updateField('perplexityChatLink', e.target.value)}
-          placeholder="https://www.perplexity.ai/search/... (Link to Perplexity chat example)"
-          className="mt-1"
+          placeholder="https://... (Link to a live example or demo)"
+          className="h-12 px-4 bg-secondary/50 border-0 rounded-xl focus:bg-background focus:ring-2 focus:ring-accent/20 transition-all duration-200"
         />
       </div>
-    </>
+    </div>
   );
 };
 
