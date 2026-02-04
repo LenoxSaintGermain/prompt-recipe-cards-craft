@@ -1,1 +1,19 @@
 project_id = "kdyltlumdsgdhyjneeui"
+
+[functions.check-ai-providers]
+verify_jwt = false
+
+[functions.generate-with-ai]
+verify_jwt = false
+
+[functions.parse-recipe-content]
+verify_jwt = false
+
+[functions.improve-recipe-card]
+verify_jwt = false
+
+[functions.recipe-assistant]
+verify_jwt = false
+
+[functions.batch-enhance-cards]
+verify_jwt = false

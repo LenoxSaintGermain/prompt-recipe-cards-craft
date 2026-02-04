@@ -13,7 +13,7 @@ interface CollectionDetailViewProps {
   onClose: () => void;
   onViewCard: (card: RecipeCard) => void;
   onEditCard: (card: RecipeCard) => void;
-  onExportCard: (card: RecipeCard, format: 'pdf' | 'png' | 'markdown') => void;
+  onExportCard: (card: RecipeCard, format: 'png' | 'markdown') => void;
 }
 
 const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
@@ -204,13 +204,13 @@ const CollectionDetailView: React.FC<CollectionDetailViewProps> = ({
                     Edit
                   </Button>
                   <Button
-                    onClick={() => onExportCard(card, 'pdf')}
+                    onClick={() => onExportCard(card, 'png')}
                     variant="outline"
                     size="sm"
-                    className="text-blue-600"
+                    className="text-accent"
                   >
                     <Download className="w-3 h-3 mr-1" />
-                    PDF
+                    PNG
                   </Button>
                 </div>
               </CardContent>

@@ -21,7 +21,7 @@ interface RecipeCardLibraryProps {
   onEditCard: (card: RecipeCard) => void;
   onViewCard: (card: RecipeCard) => void;
   onDeleteCard: (cardId: string) => void;
-  onExportCard: (card: RecipeCard, format: 'pdf' | 'png' | 'markdown') => void;
+  onExportCard: (card: RecipeCard, format: 'png' | 'markdown') => void;
   onRefresh?: () => void;
 }
 
@@ -506,7 +506,7 @@ const RecipeCardLibrary: React.FC<RecipeCardLibraryProps> = ({
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        onClick={() => onExportCard(card, 'pdf')}
+                        onClick={() => onExportCard(card, 'png')}
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0 rounded-lg press-effect"
