@@ -57,6 +57,7 @@ export type Database = {
           id: string
           name: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -64,6 +65,7 @@ export type Database = {
           id?: string
           name: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -71,6 +73,7 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -86,6 +89,7 @@ export type Database = {
           status: string
           total_cards: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -98,6 +102,7 @@ export type Database = {
           status?: string
           total_cards?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -110,6 +115,7 @@ export type Database = {
           status?: string
           total_cards?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -128,6 +134,7 @@ export type Database = {
           tags: string[] | null
           tips: Json
           updated_at: string
+          user_id: string | null
           what_it_does: string
           who_its_for: string
         }
@@ -145,6 +152,7 @@ export type Database = {
           tags?: string[] | null
           tips?: Json
           updated_at?: string
+          user_id?: string | null
           what_it_does: string
           who_its_for: string
         }
@@ -162,6 +170,7 @@ export type Database = {
           tags?: string[] | null
           tips?: Json
           updated_at?: string
+          user_id?: string | null
           what_it_does?: string
           who_its_for?: string
         }
