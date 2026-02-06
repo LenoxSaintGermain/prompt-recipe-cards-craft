@@ -1,10 +1,10 @@
 # Demo Catalog metadata — parsed by sync agent
 
+status: live
+
 title: Prompt Recipe Cards
 
 pitch: Institutional memory for AI expertise—capture, refine, and share prompt patterns that actually work.
-
-status: live
 
 category: productivity
 
@@ -12,6 +12,14 @@ platform: lovable
 
 featured: false
 
+live_url: https://prompt-recipe-cards-craft.lovable.app
+
 demo_video:
 
 cover_prompt: A clean, modern dashboard showing organized recipe cards with AI icons, knowledge flow diagrams, and team collaboration elements in a warm, professional color palette.
+
+tags:
+  - ai
+  - knowledge-management
+  - productivity
+  - prompt-engineering
